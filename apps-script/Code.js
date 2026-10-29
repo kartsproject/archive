@@ -29,7 +29,11 @@ function route_(req) {
       return handlePhoto_(req);
     case 'photos':
       return handlePhotos_(req);
+    case 'adminAuth':
+      return handleAdminAuth_(req);
     default:
+      // 관리자 페이지 요청(docs/admin.md 8절)은 Admin.js가 관리자 토큰을 확인한 뒤 나눠 준다.
+      if (isAdminAction_(req.action)) return handleAdmin_(req);
       return jsonResponse_(false, 'SERVER_ERROR', null);
   }
 }

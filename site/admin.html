@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; frame-src https://player.vimeo.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; base-uri 'none'; form-action 'self';">
+<title>K예술영재 아카이브 관리자</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ================= GATE (관리자 로그인) ================= -->
+<div id="gate-screen" class="hidden">
+  <div class="bg-scrim"></div>
+  <div class="brackets"><i></i><i></i><i></i><i></i></div>
+  <div class="gate-content">
+    <div class="gate-eyebrow">ADMIN ACCESS</div>
+    <div class="gate-title">K예술영재 아카이브 관리자</div>
+    <div class="gate-sub">관리자 권한이 있는 접근코드로 들어올 수 있습니다.</div>
+    <input id="code-input" class="code-input" type="password" placeholder="ADMIN CODE" maxlength="20" autocomplete="off" autocapitalize="off" autocorrect="off">
+    <input id="name-input" class="name-input" placeholder="이름" maxlength="20" autocomplete="off">
+    <button class="gate-btn" id="gate-submit">들어가기</button>
+    <div class="gate-error" id="gate-error"></div>
+    <div class="gate-notice">바꾼 내용은 누가 언제 바꿨는지 「관리기록」에 남습니다.</div>
+  </div>
+</div>
+
+<!-- ================= 관리 화면 ================= -->
+<div id="admin-screen" class="hidden">
+  <header class="top-bar">
+    <div class="brand">
+      <span class="brand-name">K예술영재 아카이브</span>
+      <span class="brand-tag">Admin</span>
+    </div>
+    <nav class="admin-tabs" id="admin-tabs">
+      <button type="button" data-tab="codes">접근코드</button>
+      <button type="button" data-tab="logs">접속 기록</button>
+      <button type="button" data-tab="media">영상 관리</button>
+    </nav>
+    <div class="top-actions admin-top-actions">
+      <span class="admin-who" id="admin-who"></span>
+      <button class="ghost-btn" id="logout-btn">로그아웃</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section id="tab-codes" class="admin-tab hidden"></section>
+    <section id="tab-logs" class="admin-tab hidden"></section>
+    <section id="tab-media" class="admin-tab hidden"></section>
+  </main>
+</div>
+
+<!-- 확인 창 (openAdminDialog). 내용은 코드가 textContent·노드로 채운다 -->
+<dialog class="admin-dialog" id="admin-dialog">
+  <div class="admin-dialog-title" id="admin-dialog-title"></div>
+  <div class="admin-dialog-body" id="admin-dialog-body"></div>
+  <div class="admin-dialog-actions">
+    <button type="button" class="admin-btn" id="admin-dialog-cancel">취소</button>
+    <button type="button" class="admin-btn primary" id="admin-dialog-ok">확인</button>
+  </div>
+</dialog>
+
+<div class="admin-toast hidden" id="admin-toast" role="status"></div>
+
+<script src="js/hangul.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin-app.js"></script>
+<script src="js/admin-codes.js"></script>
+<script src="js/admin-logs.js"></script>
+<script src="js/admin-media.js"></script>
+</body>
+</html>

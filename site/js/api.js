@@ -68,8 +68,10 @@ async function requestOnce(body, signal) {
  * 3초 안에 응답이 없으면 같은 요청을 한 번 더 보내고 먼저 오는 응답을 쓴다.
  * auth는 requestId로 관문이 중복을 걸러 토큰·로그가 두 번 생기지 않는다.
  * 뒤에서 미리 받는 요청(photos)은 서두를 필요가 없어 hedge: false로 예비 요청을 보내지 않는다.
+ * 관리자 페이지의 저장 요청도 두 번 쓰이면 안 되므로 hedge: false로 보내고, 입구 대기(최대 1분)보다
+ * 먼저 포기해 "실패"로 보였는데 실제로는 저장되는 일을 줄이려고 timeoutMs를 길게 준다.
  */
-function callGateway(body, { hedge = true } = {}) {
+function callGateway(body, { hedge = true, timeoutMs = GATEWAY_TIMEOUT_MS } = {}) {
   return new Promise((resolve, reject) => {
     const controllers = [];
     let inFlight = 0;
@@ -89,7 +91,7 @@ function callGateway(body, { hedge = true } = {}) {
       const controller = new AbortController();
       controllers.push(controller);
       inFlight++;
-      const timer = setTimeout(() => controller.abort(), GATEWAY_TIMEOUT_MS);
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
       requestOnce(body, controller.signal)
         .then(data => finish(resolve, data))
         .catch(err => {

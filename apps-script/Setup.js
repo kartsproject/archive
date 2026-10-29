@@ -39,6 +39,43 @@ var PROGRAM_TAB_DROPDOWNS_ = {
   }
 };
 
+/**
+ * 관리자 페이지용 시트 준비 (docs/admin.md 3·4절). 편집기에서 ▶로 한 번 실행한다.
+ * ① 「접근코드」 탭 맨 끝에 「권한」 열(열람/관리자 선택 목록)을 붙인다 ② 「관리기록」 탭을 만든다.
+ * 이미 있으면 건드리지 않아 여러 번 실행해도 안전하다.
+ */
+var ADMIN_RECORD_HEADERS_ = ['일시', '코드', '이름', '작업', '대상', '이전 값', '새 값'];
+
+function setupAdminSheets() {
+  var codeSheet = getSheet_('접근코드');
+  var lastCol = codeSheet.getLastColumn();
+  var headers = codeSheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  if (headers.indexOf('권한') === -1) {
+    var col = lastCol + 1;
+    codeSheet.getRange(1, col).setValue('권한').setFontWeight('bold');
+    var rule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['열람', '관리자'], true)
+      .setAllowInvalid(false)
+      .build();
+    codeSheet.getRange(2, col, Math.max(codeSheet.getMaxRows() - 1, 1), 1).setDataValidation(rule);
+    Logger.log('접근코드: 「권한」 열을 ' + col + '번째 열에 만듦 (비어 있으면 열람)');
+  } else {
+    Logger.log('접근코드: 「권한」 열이 이미 있어 건드리지 않음');
+  }
+
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (spreadsheet.getSheetByName('관리기록')) {
+    Logger.log('관리기록: 이미 있어 건드리지 않음');
+    return;
+  }
+  var recordSheet = spreadsheet.insertSheet('관리기록');
+  recordSheet.getRange(1, 1, 1, ADMIN_RECORD_HEADERS_.length).setValues([ADMIN_RECORD_HEADERS_]).setFontWeight('bold');
+  recordSheet.setFrozenRows(1);
+  // 관문이 기록하는 탭이라 손으로 고치면 경고만 띄운다(「로그」 탭과 같은 취지, sheet-schema 11절).
+  recordSheet.protect().setDescription('관리자 페이지가 기록함 — 손으로 고치지 않음').setWarningOnly(true);
+  Logger.log('관리기록: 만듦');
+}
+
 function setupProgramSheets() {
   PROGRAMS_.forEach(function (program) {
     var spreadsheet = getProgramSpreadsheet_(program);

@@ -202,20 +202,27 @@ function showAdminToast(message, kind = 'ok') {
 
 /**
  * 확인 창. body는 문자열(textContent로 넣음) 또는 DOM 노드. 확인을 누르면 true.
- * openAdminDialog({ title, body, okLabel, danger })
+ * openAdminDialog({ title, body, okLabel, danger, validate })
+ * validate()가 문구를 돌려주면 창을 닫지 않고 그 문구를 보여 준다(입력 양식용).
  */
 const adminDialog = document.getElementById('admin-dialog');
 const adminDialogTitle = document.getElementById('admin-dialog-title');
 const adminDialogBody = document.getElementById('admin-dialog-body');
 const adminDialogOk = document.getElementById('admin-dialog-ok');
+const adminDialogError = document.createElement('div');
+adminDialogError.className = 'admin-dialog-error';
+adminDialog.insertBefore(adminDialogError, adminDialog.querySelector('.admin-dialog-actions'));
 let adminDialogResolve = null;
+let adminDialogValidate = null;
 
-function openAdminDialog({ title = '', body = '', okLabel = '확인', danger = false } = {}) {
+function openAdminDialog({ title = '', body = '', okLabel = '확인', danger = false, validate = null } = {}) {
   closeAdminDialog(false);
   adminDialogTitle.textContent = title;
   adminDialogBody.replaceChildren();
   if (typeof body === 'string') adminDialogBody.textContent = body;
   else if (body) adminDialogBody.appendChild(body);
+  adminDialogError.textContent = '';
+  adminDialogValidate = validate;
   adminDialogOk.textContent = okLabel;
   adminDialogOk.classList.toggle('danger', danger);
   adminDialog.showModal();
@@ -231,7 +238,11 @@ function closeAdminDialog(result) {
   }
 }
 
-adminDialogOk.addEventListener('click', () => closeAdminDialog(true));
+adminDialogOk.addEventListener('click', () => {
+  const problem = adminDialogValidate ? adminDialogValidate() : '';
+  if (problem) { adminDialogError.textContent = problem; return; }
+  closeAdminDialog(true);
+});
 document.getElementById('admin-dialog-cancel').addEventListener('click', () => closeAdminDialog(false));
 adminDialog.addEventListener('cancel', e => { e.preventDefault(); closeAdminDialog(false); }); // Esc
 

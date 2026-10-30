@@ -1,0 +1,30 @@
+# 아카이빙 사이트 게시 (2026-10-30): main에 올라오면 site/ 폴더만 GitHub Pages로 내보낸다.
+# 주소는 https://kartsproject.github.io/archive/ (예전 …/archive/site/).
+# 저장소 루트의 예전 파일(index.html · data.json · admin.html · conference.html · bg_*.jpg)과 docs/ · apps-script/는 게시하지 않는다.
+# 되돌리기: Settings → Pages → Source를 「Deploy from a branch」로.
+name: Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

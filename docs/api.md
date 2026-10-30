@@ -56,6 +56,8 @@
 
 모든 요청은 POST 본문에 `action` 필드로 종류를 담아 보낸다(토큰을 URL에 넣지 않기 위함, 6절 참조).
 
+> 관리자 페이지 요청(`adminAuth` · `adminPing` · `adminCodes` 등, 2026-10-29 추가)은 `docs/admin.md` 8·10절에 따로 적는다.
+
 ### 3-1. auth
 
 로그인. 접근코드·이름·기기ID로 토큰을 받는다.

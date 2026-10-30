@@ -1,0 +1,191 @@
+/**
+ * 관리자 페이지 스타일 (docs/admin.md 2절). 색·로그인·상단바는 style.css를 그대로 쓰고,
+ * 여기에는 관리 화면 공통 부품만 둔다. PC 기준이며 모바일은 깨지지 않을 정도만 맞춘다.
+ * 탭별 스타일은 아래 「접근코드·접속 기록」 · 「영상 관리」 구역에만 더한다(작업 폴더가 달라도 충돌하지 않게).
+ */
+
+button, input, select, textarea { font-family: inherit; }
+
+/* ---------- 틀 ---------- */
+#admin-screen { min-height: 100vh; display: flex; flex-direction: column; }
+
+.admin-tabs { display: flex; gap: 22px; }
+.admin-tabs button {
+  background: none; border: none; cursor: pointer; padding: 6px 0;
+  font-weight: 600; font-size: 14px; color: var(--cream-dim);
+  border-bottom: 2px solid transparent;
+}
+.admin-tabs button:hover { color: var(--cream); }
+.admin-tabs button.active { color: var(--gold-soft); border-bottom-color: var(--gold); }
+
+.admin-top-actions { display: flex; align-items: center; gap: 14px; }
+.admin-who { font-size: 12px; color: var(--cream-dim); }
+
+.admin-main { flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: 32px 40px 90px; }
+.admin-placeholder {
+  padding: 60px 20px; text-align: center; color: var(--cream-dim); font-size: 14px;
+  border: 1px dashed var(--line); border-radius: 8px;
+}
+
+/* ---------- 공통 부품 ---------- */
+.admin-section-title { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+.admin-section-desc { font-size: 13px; color: var(--cream-dim); margin: 0 0 22px; line-height: 1.6; }
+
+.admin-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; margin-bottom: 16px; }
+.admin-toolbar .spacer { flex: 1; }
+
+.admin-field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--cream-dim); }
+.admin-input, .admin-select, .admin-textarea {
+  background: rgba(255, 255, 255, .05); border: 1px solid var(--line); border-radius: 6px;
+  padding: 8px 10px; color: var(--cream); font-size: 13px; outline: none; min-width: 0;
+}
+.admin-input:focus, .admin-select:focus, .admin-textarea:focus { border-color: var(--gold); }
+.admin-select option { background: var(--ink-900); color: var(--cream); }
+
+.admin-btn {
+  background: transparent; border: 1px solid var(--line); border-radius: 6px; color: var(--cream);
+  padding: 8px 14px; font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.admin-btn:hover { border-color: var(--gold); color: var(--gold-soft); }
+.admin-btn.primary { border-color: var(--gold); color: var(--gold-soft); }
+.admin-btn.primary:hover { background: var(--gold); color: var(--ink-950); }
+.admin-btn.danger { border-color: rgba(217, 105, 94, .6); color: var(--dance); }
+.admin-btn.danger:hover { background: var(--dance); color: var(--ink-950); }
+.admin-btn:disabled { opacity: .45; cursor: default; background: transparent; color: var(--cream-dim); border-color: var(--line); }
+
+.admin-table-wrap { overflow-x: auto; border: 1px solid var(--line-soft); border-radius: 8px; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.admin-table th, .admin-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+.admin-table th { font-size: 12px; font-weight: 600; color: var(--cream-dim); background: rgba(255, 255, 255, .03); white-space: nowrap; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tbody tr:hover td { background: rgba(255, 255, 255, .025); }
+.admin-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.admin-table .mono { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
+.admin-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: rgba(255, 255, 255, .07); color: var(--cream-dim); }
+.admin-badge.ok { background: rgba(201, 162, 39, .14); color: var(--gold-soft); }
+.admin-badge.warn { background: rgba(217, 105, 94, .14); color: var(--dance); }
+
+.admin-notice { font-size: 12px; color: var(--cream-dim); line-height: 1.6; margin-top: 12px; }
+.admin-loading { padding: 40px 0; text-align: center; color: var(--cream-dim); font-size: 13px; }
+
+/* ---------- 확인 창 ---------- */
+.admin-dialog {
+  width: min(480px, calc(100vw - 32px)); padding: 24px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--ink-900); color: var(--cream);
+}
+.admin-dialog::backdrop { background: rgba(0, 0, 0, .6); }
+.admin-dialog-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.admin-dialog-body { font-size: 13px; line-height: 1.7; color: var(--cream); white-space: pre-line; }
+.admin-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+.admin-dialog { max-height: calc(100vh - 32px); overflow-y: auto; }
+.admin-dialog-error { margin-top: 14px; font-size: 13px; color: var(--dance); min-height: 0; }
+.admin-dialog-error:empty { display: none; }
+
+/* ---------- 알림 ---------- */
+.admin-toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 60;
+  max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: 8px;
+  background: var(--ink-800); border: 1px solid rgba(201, 162, 39, .5); color: var(--cream);
+  font-size: 13px; box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+}
+.admin-toast.error { border-color: rgba(217, 105, 94, .7); }
+
+/* ---------- 접근코드·접속 기록 (WBS 5.2·5.3) ---------- */
+.codes-table td { white-space: nowrap; }
+.codes-table td:nth-child(2) { white-space: normal; min-width: 120px; }
+.codes-self td { background: rgba(201, 162, 39, .04); }
+.codes-code { display: flex; align-items: center; gap: 8px; }
+.codes-copy {
+  background: none; border: 1px solid var(--line-soft); border-radius: 4px; color: var(--cream-dim);
+  font-size: 11px; padding: 2px 6px; cursor: pointer;
+}
+.codes-copy:hover { color: var(--gold-soft); border-color: var(--gold); }
+.codes-expired { margin-left: 6px; }
+.codes-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+.codes-form { display: flex; flex-direction: column; gap: 14px; }
+.codes-form-field .admin-input, .codes-form-field .admin-select { width: 100%; }
+.codes-form-hint { font-size: 11px; color: var(--cream-dim); opacity: .8; }
+.codes-code-input { display: flex; gap: 8px; }
+.codes-code-input .admin-input { flex: 1; letter-spacing: .06em; }
+.admin-input:disabled, .admin-select:disabled { opacity: .5; }
+
+.logs-subtitle { font-size: 15px; font-weight: 700; margin: 30px 0 12px; }
+.logs-count { font-size: 12px; color: var(--cream-dim); align-self: center; }
+.logs-warn { color: var(--dance); }
+.logs-list { max-height: none; }
+.logs-list td { white-space: nowrap; }
+.logs-device { color: var(--cream-dim); }
+
+@media (max-width: 760px) {
+  .codes-actions { flex-direction: column; }
+}
+
+/* ---------- 영상 관리 (WBS 5.4·5.5) ---------- */
+/* 일정표 칸 모양은 style.css의 열람 일정표(.schedule-grid · .block)를 그대로 쓰고, 고른 칸 표시만 더한다 */
+.media-discipline-tabs { display: flex; gap: 6px; }
+.media-body { display: flex; flex-direction: column; gap: 22px; }
+.media-grid-wrap { overflow-x: auto; }
+.media-cell { cursor: pointer; }
+.media-cell:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.block.media-cell.idle:hover { background: rgba(255, 255, 255, .07); }
+.block.media-selected, .media-cell.media-selected td { box-shadow: inset 0 0 0 2px var(--gold); }
+.media-pending-state { color: var(--art); }
+
+.media-detail { border-top: 1px solid var(--line); padding-top: 20px; scroll-margin-top: 80px; }
+.media-detail-head { margin-bottom: 14px; }
+.media-detail-title { font-size: 16px; font-weight: 700; }
+.media-detail-sub { font-size: 12px; color: var(--cream-dim); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.media-video-table .media-subtitle { width: 100%; min-width: 120px; }
+.media-actions { display: flex; gap: 6px; justify-content: flex-end; white-space: nowrap; }
+.media-video-table tr.media-busy td { opacity: .55; }
+.media-warn { color: var(--dance); }
+
+.media-add { margin-top: 22px; padding: 18px; border: 1px dashed var(--line); border-radius: 8px; }
+.media-add-head .admin-section-desc { margin-bottom: 12px; }
+.media-add-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.media-file-input { display: none; }
+.media-add-bar { margin-bottom: 10px; }
+.media-file-list { display: flex; flex-direction: column; gap: 8px; }
+.media-file-row {
+  display: grid; grid-template-columns: minmax(180px, 1.4fr) minmax(140px, 1fr) auto auto minmax(100px, .8fr) auto;
+  align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255, 255, 255, .03); border-radius: 6px;
+}
+.media-file-name { display: flex; flex-direction: column; gap: 2px; font-size: 13px; word-break: break-all; }
+.media-file-size { font-size: 11px; color: var(--cream-dim); }
+.media-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--cream-dim); white-space: nowrap; cursor: pointer; }
+.media-student.hidden { display: block !important; visibility: hidden; } /* 줄 칸 자리는 지킨다 */
+
+.media-jobs { margin-bottom: 22px; padding: 16px 18px; border: 1px solid rgba(201, 162, 39, .4); border-radius: 8px; background: rgba(201, 162, 39, .04); }
+.media-jobs-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.media-jobs-head .media-add-title { margin: 0; }
+.media-jobs-count { flex: 1; font-size: 12px; color: var(--cream-dim); }
+.media-job {
+  display: grid; grid-template-columns: minmax(200px, 1fr) minmax(160px, 1fr) 150px auto;
+  align-items: center; gap: 6px 14px; padding: 10px 0; border-top: 1px solid var(--line-soft);
+}
+.media-job-name { font-size: 13px; font-weight: 600; word-break: break-all; }
+.media-job-sub { font-size: 11px; color: var(--cream-dim); margin-top: 2px; word-break: break-all; }
+.media-job-state { font-size: 12px; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+.media-job-msg { grid-column: 1 / -1; font-size: 12px; color: var(--cream-dim); }
+.media-job.done .media-job-state { color: var(--gold-soft); }
+.media-job.failed .media-job-state, .media-job.failed .media-job-msg { color: var(--dance); }
+.media-job.cancelled { opacity: .55; }
+.media-progress { width: 100%; height: 8px; accent-color: var(--gold); }
+
+@media (max-width: 760px) {
+  .media-discipline-tabs { flex-wrap: wrap; }
+  .media-file-row { grid-template-columns: 1fr 1fr; }
+  .media-file-name { grid-column: 1 / -1; }
+  .media-job { grid-template-columns: 1fr auto; }
+  .media-job-info, .media-progress { grid-column: 1 / -1; }
+  .media-add { padding: 14px 12px; }
+}
+
+/* ---------- 모바일 ---------- */
+@media (max-width: 760px) {
+  .admin-main { padding: 20px 16px 60px; }
+  .admin-tabs { gap: 16px; order: 3; width: 100%; }
+  .admin-who { display: none; }
+}

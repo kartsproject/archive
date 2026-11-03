@@ -1,0 +1,80 @@
+# 관문(Apps Script) 자동 배포 (2026-11-03 사용자 요청 「나머지는 자동으로」).
+# main에 apps-script/가 바뀌어 올라오면 clasp로 코드를 올리고(push), **기존 웹앱 배포를 새 버전으로** 바꾼다.
+# 관문 주소는 그대로다 — 배포 ID는 화면 코드(site/js/api.js)의 관문 주소에서 읽는다(새 배포를 만들지 않음).
+#
+# 처음 한 번 저장소 Settings → Secrets and variables → Actions에 넣을 것(값은 파일·채팅에 쓰지 않음):
+#   CLASPRC_JSON  — clasp에 로그인한 PC의 사용자 폴더 .clasprc.json 내용 전체
+#   GAS_SCRIPT_ID — Apps Script 편집기 「프로젝트 설정」의 스크립트 ID (= apps-script/.clasp.json의 scriptId)
+# 두 값이 없으면 배포하지 않고 안내만 남긴다(실패로 표시하지 않음).
+#
+# 주의: clasp push는 Apps Script 프로젝트 전체를 main의 apps-script/로 덮어쓴다.
+# 이 자동 배포를 쓰는 동안에는 PC에서 따로 clasp push하지 않는다(하려면 최신 main을 받은 뒤에만).
+name: Gateway
+on:
+  push:
+    branches: [main]
+    paths: ['apps-script/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gateway
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.repository == 'kartsproject/archive'
+    runs-on: ubuntu-latest
+    env:
+      CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+      GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 비밀값 확인
+        id: check
+        run: |
+          if [ -z "$CLASPRC_JSON" ] || [ -z "$GAS_SCRIPT_ID" ]; then
+            echo "::notice::CLASPRC_JSON · GAS_SCRIPT_ID가 없어 관문 배포를 건너뜀 (docs/admin.md 11절)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 배포 ID 읽기 (site/js/api.js 관문 주소)
+        if: steps.check.outputs.ready == 'true'
+        id: dep
+        run: |
+          id=$(grep -oE "script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec" site/js/api.js | head -1 | sed -E 's#.*/s/([^/]+)/exec#\1#')
+          if [ -z "$id" ]; then echo "::error::api.js에서 관문 주소를 찾지 못함"; exit 1; fi
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version: 20
+
+      - name: clasp 준비
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          npm install -g @google/clasp@3.4.1
+          umask 077
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+          printf '{"scriptId":"%s","rootDir":"."}' "$GAS_SCRIPT_ID" > apps-script/.clasp.json
+
+      - name: 코드 올리기 (clasp push)
+        if: steps.check.outputs.ready == 'true'
+        working-directory: apps-script
+        run: clasp push --force
+
+      - name: 기존 배포를 새 버전으로
+        if: steps.check.outputs.ready == 'true'
+        working-directory: apps-script
+        env:
+          DESC: ${{ github.event.head_commit.message }}
+        run: |
+          desc="auto ${GITHUB_SHA::7} $(printf '%s' "${DESC:-manual}" | head -1 | cut -c1-60)"
+          clasp update-deployment "${{ steps.dep.outputs.id }}" --description "$desc"
+
+      - name: 비밀값 지우기
+        if: always()
+        run: rm -f "$HOME/.clasprc.json" apps-script/.clasp.json

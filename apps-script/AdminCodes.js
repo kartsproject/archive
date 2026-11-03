@@ -12,12 +12,24 @@ var CODE_TEXT_LIMITS_ = { '이름': 40, '배포 대상': 20, '첫 화면': 20, '
 
 // 목록. 행마다 _row(시트 행 번호)가 붙고, 화면은 이 값을 저장 직전 확인(before)으로 되돌려 보낸다.
 function adminCodes_(req, admin) {
+  ensureDownloadColumn_();
   var table = readAdminTable_('접근코드');
   return {
     headers: table.headers.filter(function (h) { return h; }),
     rows: table.rows,
     currentCode: admin.code
   };
+}
+
+// 「내려받기」 열(2026-11-03)이 없으면 만든다 — setupAdminSheets()를 따로 실행하지 않아도 되게(사용자 요청 「자동으로」).
+// 머리글만 먼저 보고, 없을 때만 쓰기 잠금 안에서 만든다(두 관리자가 동시에 열어도 열이 두 번 생기지 않음).
+function ensureDownloadColumn_() {
+  var sheet = getSheet_('접근코드');
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
+  if (headers.indexOf('내려받기') !== -1) return;
+  adminWrite_(function () {
+    addCodeColumnIfMissing_(sheet, '내려받기', CODE_DOWNLOAD_VALUES_, '관리자 페이지 접근코드 탭을 처음 열 때 자동으로, 비어 있으면 불가');
+  });
 }
 
 // req.mode: 'add' { fields } | 'update' { row, before, changes }

@@ -8,12 +8,14 @@
   const TARGET_SUGGESTIONS = ['운영진', '음악', '무용', '전통예술', '미술', '발주기관'];
   const STATUS_VALUES = ['사용', '정지'];
   const ROLE_VALUES = ['열람', '관리자'];
+  const DOWNLOAD_VALUES = ['불가', '허용']; // 영상 내려받기(2026-11-03). 시트 값이 비어 있으면 불가
   const TARGET_SLUG = { '운영진': 'STAFF', '음악': 'MUSIC', '무용': 'DANCE', '전통예술': 'TRAD', '미술': 'ART' };
   const SAFE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 헷갈리는 0 O 1 I L 제외 (docs/admin.md 5절)
   const CODE_PATTERN = /^[A-Z0-9-]{4,20}$/;
   const ADMIN_CODE_MIN_LENGTH = 12;
   // 화면에 보여 주고 고칠 수 있는 열. 버전은 [접속 끊기]·코드 변경으로만 바뀐다.
-  const EDIT_FIELDS = ['코드', '이름', '배포 대상', '첫 화면', '사용기한', '상태', '권한', '비고'];
+  // 「내려받기」 열은 관문 setupAdminSheets()가 만든다 — 열이 없으면 양식·카드에 나오지 않는다.
+  const EDIT_FIELDS = ['코드', '이름', '배포 대상', '첫 화면', '사용기한', '상태', '권한', '내려받기', '비고'];
 
   const state = { headers: [], rows: [], currentCode: '', loaded: false, busy: false };
   let tableArea = null;
@@ -112,6 +114,7 @@
       isSelf ? el('span', { className: 'admin-badge ok', text: '지금 로그인' }) : null,
       has('권한') ? el('span', { className: `admin-badge ${row['권한'] === '관리자' ? 'ok' : ''}`, text: row['권한'] || '열람' }) : null,
       has('상태') ? el('span', { className: `admin-badge ${status === '사용' ? 'ok' : 'warn'}`, text: status || '상태 없음' }) : null,
+      has('내려받기') && row['내려받기'] === '허용' ? el('span', { className: 'admin-badge ok', text: '내려받기 허용' }) : null,
       expired ? el('span', { className: 'admin-badge warn', text: '기한 지남' }) : null
     );
     const head = el('div', { className: 'code-card-head' },
@@ -195,7 +198,7 @@
     const isSelf = !isNew && row['코드'] === state.currentCode;
     const fields = shownFields();
     const v = isNew
-      ? { '코드': '', '이름': '', '배포 대상': '', '첫 화면': '분야 선택', '사용기한': '', '상태': '사용', '권한': '열람', '비고': '' }
+      ? { '코드': '', '이름': '', '배포 대상': '', '첫 화면': '분야 선택', '사용기한': '', '상태': '사용', '권한': '열람', '내려받기': '불가', '비고': '' }
       : row;
 
     const inputs = {};
@@ -206,6 +209,7 @@
     inputs['사용기한'] = el('input', { className: 'admin-input', type: 'date', value: v['사용기한'] || '' });
     inputs['상태'] = selectWith(STATUS_VALUES, v['상태']);
     inputs['권한'] = selectWith(ROLE_VALUES, v['권한'] || '열람');
+    inputs['내려받기'] = selectWith(DOWNLOAD_VALUES, v['내려받기'] || '불가');
     inputs['비고'] = el('input', { className: 'admin-input', value: v['비고'] || '', maxLength: 200 });
     inputs['코드'] = el('input', { className: 'admin-input mono', value: v['코드'] || '', maxLength: 20, autocomplete: 'off' });
 
@@ -229,7 +233,8 @@
     const hints = {
       '코드': isSelf ? '지금 로그인한 코드라 바꿀 수 없습니다.' : '대문자·숫자·-만, 4~20자. 관리자 코드는 12자 이상.' + (isNew ? '' : ' 바꾸면 기존 접속이 끊깁니다.'),
       '이름': '누구에게 준 코드인지 적습니다. 접속 기록에 함께 보입니다.',
-      '첫 화면': '로그인하면 처음 보이는 화면입니다.'
+      '첫 화면': '로그인하면 처음 보이는 화면입니다.',
+      '내려받기': '허용하면 열람 사이트 영상에 「내려받기」 단추가 보입니다. 받은 링크는 24시간 동안 누구에게나 전달될 수 있어 꼭 필요한 코드만 허용합니다.'
     };
     const form = el('div', { className: 'codes-form' },
       el('datalist', { id: 'codes-target-list' }, TARGET_SUGGESTIONS.map(t => el('option', { value: t }))),
@@ -268,7 +273,10 @@
       return;
     }
     const changes = {};
-    fields.forEach(f => { if ((row[f] || '') !== values[f]) changes[f] = values[f]; });
+    // 비어 있는 권한·내려받기는 열람·불가와 같은 뜻이라 바뀐 것으로 치지 않는다
+    const DEFAULT_OF = { '권한': '열람', '내려받기': '불가' };
+    const same = (f, a, b) => (a || DEFAULT_OF[f] || '') === (b || DEFAULT_OF[f] || '');
+    fields.forEach(f => { if (!same(f, row[f], values[f])) changes[f] = values[f]; });
     if (Object.keys(changes).length === 0) { showAdminToast('바뀐 내용이 없습니다.'); return; }
     const message = '코드' in changes ? '저장했습니다. 코드가 바뀌어 기존 접속은 끊겼습니다.' : '저장했습니다.';
     await save({ mode: 'update', row: row._row, before: beforeOf(row), changes }, message);

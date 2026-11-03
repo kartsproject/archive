@@ -86,7 +86,12 @@ function handleData_(req) {
   var result = verifyToken_(req.token);
   if (!result.valid) return jsonResponse_(false, result.error, null);
 
-  return jsonResponse_(true, null, getDataPayload_());
+  // 공개 자료는 모두에게 같아 캐시를 쓰고, 코드마다 다른 값(내려받기 허용)만 여기서 덧붙인다.
+  var payload = getDataPayload_();
+  var out = {};
+  Object.keys(payload).forEach(function (k) { out[k] = payload[k]; });
+  out.canDownload = canDownload_(result.row);
+  return jsonResponse_(true, null, out);
 }
 
 // docs/api.md 3-4. 사진·작품(이미지)만 대상. 실제 축소는 하지 않고 Drive에 올라간 파일을

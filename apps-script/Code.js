@@ -29,6 +29,8 @@ function route_(req) {
       return handlePhoto_(req);
     case 'photos':
       return handlePhotos_(req);
+    case 'download':
+      return handleDownload_(req); // Download.js (docs/api.md 3-6)
     case 'adminAuth':
       return handleAdminAuth_(req);
     default:

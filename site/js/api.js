@@ -130,5 +130,9 @@ const api = {
   // docs/api.md 3-5. 자료 페이지 진입 시 뒤에서 한 번 보내는 미리 받기용 요청
   async photos(token, sessionId) {
     return callGateway({ action: 'photos', token, sessionId }, { hedge: false });
+  },
+  // docs/api.md 3-6. 영상 내려받기 링크(화질별, 24시간 뒤 만료). 접속 기록에 남으므로 예비 요청을 보내지 않는다
+  async download(token, link) {
+    return callGateway({ action: 'download', token, link: String(link), deviceId: getDeviceId() }, { hedge: false });
   }
 };

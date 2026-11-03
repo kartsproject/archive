@@ -452,6 +452,20 @@ function initMaterialModal() {
     sidebarList: document.getElementById('material-sidebar-list')
   });
 
+  // 인물 상세에서 여는 영상(학생 작품 등)에도 내려받기 단추를 둔다. 닫기 단추 왼쪽에 붙인다.
+  const modalActions = document.createElement('div');
+  modalActions.className = 'viewer-actions modal-actions hidden';
+  const modalToast = document.createElement('div');
+  modalToast.className = 'viewer-toast';
+  modalToast.setAttribute('role', 'status');
+  modalActions.appendChild(modalToast);
+  materialModal.closeBtn.before(modalActions);
+  const modalDownload = attachDownloadAction(materialModal.viewer, modalActions, modalToast);
+  materialModal.viewer.onItemShown = v => {
+    modalActions.classList.toggle('hidden', v.type !== 'video' || !modalDownload.available());
+    modalDownload.reset();
+  };
+
   materialModal.closeBtn.addEventListener('click', closeMaterialModal);
   materialModal.el.addEventListener('click', e => { if (e.target === materialModal.el) closeMaterialModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !materialModal.el.classList.contains('hidden')) closeMaterialModal(); });
@@ -500,6 +514,122 @@ function describeBySession(className) {
       listLabel: label,
       fileLine: material.fileName || ''
     };
+  };
+}
+
+/* ---------- 영상 내려받기 (2026-11-03, docs/api.md 3-6) ----------
+   「접근코드」의 「내려받기」가 허용인 코드만 단추가 보인다(data 응답의 canDownload). 단추를 누르면 관문이
+   Vimeo에서 화질별 내려받기 링크를 받아 오고, 고른 화질을 브라우저가 파일로 저장한다. 링크는 24시간 뒤 만료.
+   허용 여부는 관문이 요청마다 다시 확인한다 — 화면의 canDownload는 단추를 보일지만 정한다. */
+const DOWNLOAD_ERROR_MESSAGE = {
+  DOWNLOAD_NOT_ALLOWED: '이 접근코드는 내려받기가 허용되지 않았습니다.',
+  NOT_FOUND: '내려받을 파일이 없습니다. 영상 변환이 끝나지 않았을 수 있습니다.',
+  VIMEO_ERROR: 'Vimeo 연결에 문제가 있습니다. 잠시 후 다시 해 주세요.',
+  NETWORK_ERROR: '연결에 실패했습니다. 잠시 후 다시 해 주세요.',
+  TIMEOUT: '응답이 늦습니다. 잠시 후 다시 해 주세요.'
+};
+
+function canDownloadVideos() {
+  return !!(AppState.data && AppState.data.canDownload);
+}
+
+function formatFileSize(bytes) {
+  if (!(bytes > 0)) return '';
+  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+  return `${Math.round(bytes / 1024 ** 2)} MB`;
+}
+
+function startFileDownload(url) {
+  // Vimeo 내려받기 링크는 「파일로 저장」 머리글을 주므로 지금 화면을 벗어나지 않는다
+  const a = document.createElement('a');
+  a.href = url;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+// actions(단추 칸)에 「내려받기」 단추와 화질 목록을 붙인다. reset()은 다른 자료로 넘어갈 때 목록을 닫는다.
+function attachDownloadAction(viewer, actions, toast) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'ghost-btn';
+  btn.textContent = '내려받기';
+  const menu = document.createElement('div');
+  menu.className = 'download-menu hidden';
+  menu.setAttribute('role', 'menu');
+  actions.insertBefore(btn, toast);
+  actions.appendChild(menu);
+
+  let requestNo = 0;
+  const close = () => { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
+  const refreshVisible = () => btn.classList.toggle('hidden', !canDownloadVideos());
+  refreshVisible();
+
+  const showMenu = (...children) => {
+    menu.replaceChildren(...children);
+    menu.classList.remove('hidden');
+    btn.setAttribute('aria-expanded', 'true');
+  };
+  const note = text => {
+    const div = document.createElement('div');
+    div.className = 'download-menu-note';
+    div.textContent = text;
+    return div;
+  };
+
+  btn.addEventListener('click', async () => {
+    if (!menu.classList.contains('hidden')) { close(); return; }
+    const material = viewer.type === 'video' ? viewer.lists.video[viewer.index] : null;
+    if (!material || !material.link) return;
+    const no = ++requestNo;
+    showMenu(note('화질 목록을 받는 중…'));
+    let result;
+    try {
+      result = await api.download(getToken(), material.link);
+    } catch (e) {
+      if (no !== requestNo) return;
+      if (e.code === 'TOKEN_EXPIRED' || e.code === 'TOKEN_INVALID') { logout(); return; }
+      if (e.code === 'DOWNLOAD_NOT_ALLOWED' && AppState.data) { AppState.data.canDownload = false; refreshVisible(); }
+      close();
+      showToast(toast, DOWNLOAD_ERROR_MESSAGE[e.code] || '내려받기를 준비하지 못했습니다. 잠시 후 다시 해 주세요.');
+      return;
+    }
+    if (no !== requestNo) return;
+
+    const head = note('화질을 고르면 파일로 저장됩니다.');
+    const items = result.files.map(f => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'download-menu-item';
+      item.setAttribute('role', 'menuitem');
+      const label = document.createElement('span');
+      label.className = 'download-menu-label';
+      label.textContent = f.label + (f.label === '원본' && f.height ? ` (${f.height}p)` : '');
+      const size = document.createElement('span');
+      size.className = 'download-menu-size';
+      size.textContent = formatFileSize(f.size) || f.sizeText || '';
+      item.append(label, size);
+      item.addEventListener('click', () => {
+        startFileDownload(f.link);
+        close();
+        showToast(toast, '내려받기를 시작했습니다.');
+      });
+      return item;
+    });
+    const foot = note('받은 파일은 외부 유출·재배포를 금지합니다.');
+    showMenu(head, ...items, foot);
+  });
+
+  // 목록 밖을 누르거나 Esc를 누르면 닫는다
+  document.addEventListener('click', e => {
+    if (!menu.classList.contains('hidden') && !actions.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+  return {
+    reset() { requestNo++; close(); refreshVisible(); },
+    available: canDownloadVideos
   };
 }
 
@@ -602,7 +732,11 @@ function buildSessionViewer(videoItems, photoItems, options) {
   viewer.lists = { video: videoItems, photo: photoItems };
   viewer.describe = describeBySession(options.className);
   // 링크 복사 버튼은 가운데에 영상이 떠 있을 때만 보인다
-  viewer.onItemShown = v => actions.classList.toggle('hidden', v.type !== 'video');
+  const download = attachDownloadAction(viewer, actions, toast);
+  viewer.onItemShown = v => {
+    actions.classList.toggle('hidden', v.type !== 'video');
+    download.reset();
+  };
   copyBtn.addEventListener('click', () => copyTimeLink(viewer, options.routeBase, toast));
 
   // 첫 영상을 띄우고(자동 재생은 하지 않음), 영상이 없으면 첫 사진을 띄운다.

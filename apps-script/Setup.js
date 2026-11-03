@@ -41,27 +41,34 @@ var PROGRAM_TAB_DROPDOWNS_ = {
 
 /**
  * 관리자 페이지용 시트 준비 (docs/admin.md 3·4절). 편집기에서 ▶로 한 번 실행한다.
- * ① 「접근코드」 탭 맨 끝에 「권한」 열(열람/관리자 선택 목록)을 붙인다 ② 「관리기록」 탭을 만든다.
+ * ① 「접근코드」 탭 맨 끝에 「권한」 열(열람/관리자) · 「내려받기」 열(불가/허용) 선택 목록을 붙인다 ② 「관리기록」 탭을 만든다.
  * 이미 있으면 건드리지 않아 여러 번 실행해도 안전하다.
  */
 var ADMIN_RECORD_HEADERS_ = ['일시', '코드', '이름', '작업', '대상', '이전 값', '새 값'];
 
-function setupAdminSheets() {
-  var codeSheet = getSheet_('접근코드');
+// 「접근코드」 탭 맨 끝에 선택 목록 열을 붙인다. 이미 있으면 건드리지 않는다.
+function addCodeColumnIfMissing_(codeSheet, header, values, note) {
   var lastCol = codeSheet.getLastColumn();
   var headers = codeSheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
-  if (headers.indexOf('권한') === -1) {
-    var col = lastCol + 1;
-    codeSheet.getRange(1, col).setValue('권한').setFontWeight('bold');
-    var rule = SpreadsheetApp.newDataValidation()
-      .requireValueInList(['열람', '관리자'], true)
-      .setAllowInvalid(false)
-      .build();
-    codeSheet.getRange(2, col, Math.max(codeSheet.getMaxRows() - 1, 1), 1).setDataValidation(rule);
-    Logger.log('접근코드: 「권한」 열을 ' + col + '번째 열에 만듦 (비어 있으면 열람)');
-  } else {
-    Logger.log('접근코드: 「권한」 열이 이미 있어 건드리지 않음');
+  if (headers.indexOf(header) !== -1) {
+    Logger.log('접근코드: 「' + header + '」 열이 이미 있어 건드리지 않음');
+    return;
   }
+  var col = lastCol + 1;
+  codeSheet.getRange(1, col).setValue(header).setFontWeight('bold');
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(false)
+    .build();
+  codeSheet.getRange(2, col, Math.max(codeSheet.getMaxRows() - 1, 1), 1).setDataValidation(rule);
+  Logger.log('접근코드: 「' + header + '」 열을 ' + col + '번째 열에 만듦 (' + note + ')');
+}
+
+function setupAdminSheets() {
+  var codeSheet = getSheet_('접근코드');
+  addCodeColumnIfMissing_(codeSheet, '권한', ['열람', '관리자'], '비어 있으면 열람');
+  // 2026-11-03 영상 내려받기(Download.js) — 코드마다 허용·불가, 비어 있으면 불가
+  addCodeColumnIfMissing_(codeSheet, '내려받기', ['불가', '허용'], '비어 있으면 불가');
 
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   if (spreadsheet.getSheetByName('관리기록')) {

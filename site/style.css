@@ -473,6 +473,29 @@ table.workshop-grid td.cell-block { padding: 3px; height: 1px; vertical-align: t
   font-size: 12px; opacity: 0; pointer-events: none; transition: opacity .2s ease;
 }
 .viewer-toast.show { opacity: 1; }
+.viewer-actions { display: flex; gap: 8px; align-items: flex-start; }
+/* 영상 내려받기 화질 목록 (2026-11-03) */
+.download-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 3; width: 260px;
+  background: var(--ink-800); border: 1px solid var(--line); box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
+  padding: 6px 0;
+}
+.download-menu-note { padding: 8px 14px; font-size: 11.5px; color: var(--cream-dim); line-height: 1.5; }
+.download-menu-item {
+  display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 14px; background: none; border: none; border-top: 1px solid var(--line-soft);
+  color: var(--cream); font: inherit; font-size: 13px; cursor: pointer; text-align: left;
+}
+.download-menu-item:hover, .download-menu-item:focus-visible { background: rgba(201, 162, 39, .1); color: var(--gold-soft); outline: none; }
+.download-menu-item:last-of-type { border-bottom: 1px solid var(--line-soft); }
+.download-menu-size { font-size: 12px; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+.modal-actions { margin-left: auto; margin-right: 12px; }
+@media (max-width: 720px) {
+  /* 좁은 화면은 단추 줄을 제목 아래로 내려 제목이 한 글자씩 꺾이지 않게 한다 */
+  .viewer-main .modal-head { flex-wrap: wrap; }
+  .viewer-main .viewer-actions { width: 100%; }
+  .viewer-main .download-menu { left: 0; right: auto; width: min(260px, 100%); }
+}
 .viewer-sidebar { position: relative; width: 300px; flex: 0 0 auto; border-left: 1px solid var(--line); }
 .viewer-sidebar-inner { position: absolute; inset: 0; display: flex; flex-direction: column; }
 .viewer-sidebar-list { flex: 1; min-height: 0; overflow-y: auto; }

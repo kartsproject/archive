@@ -1,7 +1,7 @@
 /**
- * Vimeo API 호출 (docs/admin.md 7-4, WBS 5.5). 관리자 페이지 [영상 관리]만 쓴다.
+ * Vimeo API 호출 (docs/admin.md 7-4, WBS 5.5). 관리자 페이지 [영상 관리]와 열람 사이트 영상 내려받기(Download.js)가 쓴다.
  * 토큰은 Script Properties `VIMEO_TOKEN`에만 두고 화면으로 보내지 않는다 — 화면에는 업로드 주소만 간다.
- * 토큰 권한은 public·private·create·edit·upload라 영상을 지우거나 다른 폴더로 옮기지 못한다.
+ * 토큰 권한은 public·private·create·edit·upload(+ 내려받기용 video_files, 2026-11-03)라 영상을 지우거나 다른 폴더로 옮기지 못한다.
  * 그래서 버릴 영상은 제목 앞에 「[삭제 필요]」만 붙이고 운영진이 Vimeo 화면에서 지운다(docs/admin-media-notes.md 2-1).
  * 설정·폴더 규칙은 기존 업로드 프로그램(archive-run.js)과 같다.
  */

@@ -246,3 +246,18 @@ function adminCodeSave_(req, admin) {
 
 ### 시트 준비 (`apps-script/Setup.js` `setupAdminSheets()`)
 편집기에서 한 번 실행하면 「접근코드」에 「권한」 열(선택 목록 열람/관리자)이 붙고 「관리기록」 탭이 생긴다. **첫 관리자 코드는 시트에서 직접** 한 줄 만들고 「권한」을 `관리자`로 둔다.
+
+---
+
+## 11. 관문 자동 배포 (2026-11-03)
+
+사용자 요청(「나머지는 자동으로」)으로 관문 배포를 GitHub Actions(`.github/workflows/gateway.yml`)에 맡긴다.
+
+| 항목 | 내용 |
+|---|---|
+| 언제 | main에 `apps-script/`가 바뀌어 올라올 때(PR 병합 포함). Actions 화면 「Gateway」에서 손으로도 돌릴 수 있다(workflow_dispatch) |
+| 하는 일 | clasp 3.4.1로 `clasp push --force`(main의 `apps-script/`로 프로젝트 전체를 덮어씀) → `clasp update-deployment {배포 ID}`(**기존 웹앱 배포를 새 버전으로**, 주소 그대로). 배포 ID는 `site/js/api.js`의 관문 주소에서 읽는다 |
+| 처음 한 번 | 저장소 Settings → Secrets and variables → Actions에 `CLASPRC_JSON`(clasp에 로그인한 PC 사용자 폴더의 `.clasprc.json` 내용 전체) · `GAS_SCRIPT_ID`(Apps Script 프로젝트 설정의 스크립트 ID). 없으면 배포를 건너뛰고 안내만 남긴다 |
+| 주의 | 자동 배포를 쓰는 동안 PC에서 `clasp push`하지 않는다(하려면 최신 main을 받은 뒤에만 — 덮어쓰기). 비밀값은 실행이 끝나면 지운다. `.clasprc.json`은 이 구글 계정의 Apps Script · 일부 드라이브를 다룰 수 있는 열쇠라 GitHub 계정(kartsproject) 관리가 곧 관문 보안이다. 계정 로그인을 끊으려면 PC에서 `clasp logout` 후 다시 로그인하고 Secret을 새 값으로 바꾼다 |
+| 시트 준비 | 「내려받기」 열은 관리자 페이지 「접근코드」 탭을 처음 열 때 관문이 만든다(`AdminCodes.js` `ensureDownloadColumn_`) — `setupAdminSheets()`를 따로 실행하지 않아도 된다 |
+

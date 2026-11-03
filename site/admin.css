@@ -92,17 +92,41 @@ button, input, select, textarea { font-family: inherit; }
 .admin-toast.error { border-color: rgba(217, 105, 94, .7); }
 
 /* ---------- 접근코드·접속 기록 (WBS 5.2·5.3) ---------- */
-.codes-table td { white-space: nowrap; }
-.codes-table td:nth-child(2) { white-space: normal; min-width: 120px; }
-.codes-self td { background: rgba(201, 162, 39, .04); }
-.codes-code { display: flex; align-items: center; gap: 8px; }
+/* 접근코드 카드 (2026-11-03 표 → 카드: 가로 스크롤 없이 모든 칸과 버튼이 보이게) */
+.codes-summary { font-size: 12px; color: var(--cream-dim); margin: 0 0 12px; }
+.codes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.code-card {
+  display: flex; flex-direction: column; gap: 14px; min-width: 0;
+  padding: 18px 18px 16px; border: 1px solid var(--line-soft); border-radius: 10px;
+  background: rgba(255, 255, 255, .025);
+}
+.code-card:hover { border-color: var(--line); }
+.code-card.is-self { border-color: rgba(201, 162, 39, .45); background: rgba(201, 162, 39, .04); }
+.code-card.is-off .code-card-name, .code-card.is-off .code-card-code, .code-card.is-off .code-card-info { opacity: .55; }
+.code-card-head { display: flex; flex-direction: column; gap: 8px; }
+.code-card-name { font-size: 15px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.code-card-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.code-card-badges:empty { display: none; }
+.code-card-code {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-radius: 6px; background: rgba(255, 255, 255, .05);
+}
 .codes-copy {
-  background: none; border: 1px solid var(--line-soft); border-radius: 4px; color: var(--cream-dim);
-  font-size: 11px; padding: 2px 6px; cursor: pointer;
+  flex-shrink: 0; background: none; border: 1px solid var(--line); border-radius: 4px; color: var(--cream-dim);
+  font-size: 11px; padding: 3px 8px; cursor: pointer;
 }
 .codes-copy:hover { color: var(--gold-soft); border-color: var(--gold); }
-.codes-expired { margin-left: 6px; }
-.codes-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.code-card-code .mono { font-size: 15px; font-weight: 600; letter-spacing: .06em; overflow-wrap: anywhere; }
+.code-card-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin: 0; }
+.code-card-info dt { font-size: 11px; color: var(--cream-dim); margin-bottom: 2px; }
+.code-card-info dd { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
+.code-card-info dd.is-warn { color: var(--dance); }
+.code-card-note {
+  margin: 0; font-size: 12px; line-height: 1.6; color: var(--cream-dim);
+  padding-top: 10px; border-top: 1px solid var(--line-soft); overflow-wrap: anywhere;
+}
+.code-card-actions { display: flex; gap: 8px; margin-top: auto; }
+.code-card-actions .admin-btn { flex: 1; }
 
 .codes-form { display: flex; flex-direction: column; gap: 14px; }
 .codes-form-field .admin-input, .codes-form-field .admin-select { width: 100%; }
@@ -119,7 +143,7 @@ button, input, select, textarea { font-family: inherit; }
 .logs-device { color: var(--cream-dim); }
 
 @media (max-width: 760px) {
-  .codes-actions { flex-direction: column; }
+  .codes-grid { grid-template-columns: 1fr; }
 }
 
 /* ---------- 영상 관리 (WBS 5.4·5.5) ---------- */

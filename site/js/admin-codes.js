@@ -81,6 +81,8 @@
     return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(new Date());
   }
 
+  // 코드마다 카드 한 장 (2026-11-03 사용자: 표는 가로 스크롤이 생겨 「수정」 버튼이 화면 밖으로 밀림).
+  // 카드는 화면 폭에 맞춰 한 줄에 1~4장씩 놓이므로 가로 스크롤 없이 모든 칸과 버튼이 보인다.
   function renderTable() {
     if (state.rows.length === 0) {
       tableArea.replaceChildren(adminPlaceholder('등록된 접근코드가 없습니다.'));
@@ -88,43 +90,70 @@
     }
     const fields = shownFields();
     const today = todayText();
-    const head = el('tr', {}, fields.map(f => el('th', { text: f === '이름' ? '이름(주체)' : f })), el('th', { text: '버전' }), el('th', { text: '' }));
-    const body = state.rows.map(row => {
-      const isSelf = row['코드'] === state.currentCode;
-      const cells = fields.map(f => el('td', {}, cellContent(f, row, today, isSelf)));
-      const actions = el('td', { className: 'codes-actions' },
-        el('button', { className: 'admin-btn', type: 'button', text: '수정', on: { click: () => openCodeForm(row) } }),
-        el('button', {
-          className: 'admin-btn danger', type: 'button', text: '접속 끊기', disabled: isSelf,
-          title: isSelf ? '지금 로그인한 코드입니다' : '',
-          on: { click: () => revokeCode(row) }
-        })
-      );
-      return el('tr', { className: isSelf ? 'codes-self' : '' }, cells, el('td', { className: 'num', text: row['버전'] || '' }), actions);
+    const using = state.rows.filter(r => r['상태'] === '사용').length;
+    const summary = el('p', {
+      className: 'codes-summary',
+      text: `모두 ${state.rows.length}개 · 사용 ${using}개` + (state.rows.length - using ? ` · 정지 등 ${state.rows.length - using}개` : '')
     });
-    tableArea.replaceChildren(
-      el('div', { className: 'admin-table-wrap' },
-        el('table', { className: 'admin-table codes-table' }, el('thead', {}, head), el('tbody', {}, body))
-      )
-    );
+    const cards = state.rows.map(row => codeCard(row, fields, today));
+    tableArea.replaceChildren(summary, el('div', { className: 'codes-grid' }, cards));
   }
 
-  function cellContent(field, row, today, isSelf) {
-    const value = row[field] || '';
-    if (field === '코드') {
-      return el('div', { className: 'codes-code' },
-        el('span', { className: 'mono', text: value }),
-        el('button', { className: 'codes-copy', type: 'button', text: '복사', on: { click: () => copyCode(value) } }),
-        isSelf ? el('span', { className: 'admin-badge ok', text: '지금 로그인' }) : null
-      );
-    }
-    if (field === '상태') return el('span', { className: `admin-badge ${value === '사용' ? 'ok' : 'warn'}`, text: value || '—' });
-    if (field === '권한') return value === '관리자' ? el('span', { className: 'admin-badge ok', text: '관리자' }) : el('span', { text: value || '열람' });
-    if (field === '사용기한') {
-      const expired = value && value < today;
-      return el('span', {}, value, expired ? el('span', { className: 'admin-badge warn codes-expired', text: '기한 지남' }) : null);
-    }
-    return value;
+  function codeCard(row, fields, today) {
+    const isSelf = row['코드'] === state.currentCode;
+    const has = f => fields.includes(f);
+    const status = row['상태'] || '';
+    const expiry = row['사용기한'] || '';
+    const expired = expiry && expiry < today;
+    const stopped = has('상태') && status !== '사용';
+
+    // 이름(주체)과 상태 표시
+    const badges = el('div', { className: 'code-card-badges' },
+      isSelf ? el('span', { className: 'admin-badge ok', text: '지금 로그인' }) : null,
+      has('권한') ? el('span', { className: `admin-badge ${row['권한'] === '관리자' ? 'ok' : ''}`, text: row['권한'] || '열람' }) : null,
+      has('상태') ? el('span', { className: `admin-badge ${status === '사용' ? 'ok' : 'warn'}`, text: status || '상태 없음' }) : null,
+      expired ? el('span', { className: 'admin-badge warn', text: '기한 지남' }) : null
+    );
+    const head = el('div', { className: 'code-card-head' },
+      el('div', { className: 'code-card-name', text: has('이름') ? (row['이름'] || '(이름 없음)') : '' }),
+      badges
+    );
+
+    // 코드 글자 + 복사
+    const code = row['코드'] || '';
+    const codeLine = el('div', { className: 'code-card-code' },
+      el('span', { className: 'mono', text: code }),
+      el('button', { className: 'codes-copy', type: 'button', text: '복사', on: { click: () => copyCode(code) } })
+    );
+
+    // 나머지 칸 (시트에 있는 열만)
+    const info = [
+      ['배포 대상', row['배포 대상']],
+      ['첫 화면', row['첫 화면']],
+      ['사용기한', expiry],
+      ['버전', row['버전']]
+    ].filter(([f]) => f === '버전' ? state.headers.includes('버전') : has(f));
+    const dl = el('dl', { className: 'code-card-info' },
+      info.map(([label, value]) => el('div', {},
+        el('dt', { text: label }),
+        el('dd', { className: label === '사용기한' && expired ? 'is-warn' : '', text: value || '—' })
+      ))
+    );
+    const note = has('비고') && row['비고'] ? el('p', { className: 'code-card-note', text: row['비고'] }) : null;
+
+    const actions = el('div', { className: 'code-card-actions' },
+      el('button', { className: 'admin-btn', type: 'button', text: '수정', on: { click: () => openCodeForm(row) } }),
+      el('button', {
+        className: 'admin-btn danger', type: 'button', text: '접속 끊기', disabled: isSelf,
+        title: isSelf ? '지금 로그인한 코드입니다' : '',
+        on: { click: () => revokeCode(row) }
+      })
+    );
+
+    const classes = ['code-card'];
+    if (isSelf) classes.push('is-self');
+    if (stopped) classes.push('is-off');
+    return el('article', { className: classes.join(' ') }, head, codeLine, dl, note, actions);
   }
 
   async function copyCode(code) {

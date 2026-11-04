@@ -1,17 +1,17 @@
 /**
- * 자료 관리 시트 접근 공통 함수. docs/sheet-schema.md 2절: 공통 시트 1 + 프로그램 시트 3.
- * 공통 시트는 이 스크립트가 붙어 있는 시트라 getActiveSpreadsheet()로 연다(웹앱 실행 중에도 동일).
- * 프로그램 시트는 Script Properties에 둔 ID로 연다(docs/sheet-schema.md 14절).
+ * 자료 관리 시트 접근 공통 함수. docs/sheet-schema.md 2절.
+ * 2026-11-04부터 **시트 파일 하나**(이 스크립트가 붙어 있는 시트)에 공통 탭과 프로그램별 탭을 함께 둔다
+ * (예전: 공통 시트 1 + 프로그램 시트 3 — 새 구글 계정 이전 때 합침, docs/decisions.md 5절).
+ * 프로그램 탭 이름은 「{프로그램 탭 머리}_{탭}」 — 예: 워크숍_일정 · 멘토링_자료 · 캠프_출석부.
+ * 웹앱 실행 중에도 getActiveSpreadsheet()가 이 시트를 연다.
  */
 
 var PROGRAMS_ = [
-  { name: '워크숍', code: 'ws', prop: 'SHEET_ID_WORKSHOP' },
-  { name: '심화 멘토링', code: 'mt', prop: 'SHEET_ID_MENTORING' },
-  { name: '겨울 심화캠프', code: 'camp', prop: 'SHEET_ID_CAMP' }
+  // old: 합치기 전 프로그램 시트를 가져올 때(Import.js)만 쓰는 스크립트 속성 이름
+  { name: '워크숍', code: 'ws', tab: '워크숍', old: 'OLD_WORKSHOP_SHEET' },
+  { name: '심화 멘토링', code: 'mt', tab: '멘토링', old: 'OLD_MENTORING_SHEET' },
+  { name: '겨울 심화캠프', code: 'camp', tab: '캠프', old: 'OLD_CAMP_SHEET' }
 ];
-
-// openById는 호출마다 수백 ms가 걸려, 한 번의 실행 안에서는 연 시트를 재사용한다.
-var openedProgramSpreadsheets_ = {};
 
 function getProgram_(code) {
   for (var i = 0; i < PROGRAMS_.length; i++) {
@@ -20,20 +20,15 @@ function getProgram_(code) {
   throw new Error('알 수 없는 프로그램: ' + code);
 }
 
-function getProgramSpreadsheet_(program) {
-  if (!openedProgramSpreadsheets_[program.code]) {
-    var id = PropertiesService.getScriptProperties().getProperty(program.prop);
-    if (!id) throw new Error('스크립트 속성 ' + program.prop + '가 없음 — ' + program.name + ' 시트 ID를 넣을 것 (docs/sheet-schema.md 14절)');
-    openedProgramSpreadsheets_[program.code] = SpreadsheetApp.openById(id);
-  }
-  return openedProgramSpreadsheets_[program.code];
+function programTabName_(program, name) {
+  return program.tab + '_' + name;
 }
 
-// program을 생략하면 공통 시트의 탭을 찾는다.
+// program을 생략하면 공통 탭(접근코드 · 설정 · 학생 · 로그 · 관리기록)을, 주면 그 프로그램의 탭을 찾는다.
 function getSheet_(name, program) {
-  var spreadsheet = program ? getProgramSpreadsheet_(program) : SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = spreadsheet.getSheetByName(name);
-  if (!sheet) throw new Error('시트를 찾을 수 없음: ' + (program ? program.name + ' › ' : '') + name);
+  var tab = program ? programTabName_(program, name) : name;
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(tab);
+  if (!sheet) throw new Error('시트 탭을 찾을 수 없음: ' + tab);
   return sheet;
 }
 

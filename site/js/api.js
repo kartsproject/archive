@@ -4,7 +4,7 @@
  * 관문 주소는 화면 코드와 함께 공개된다고 가정한다(docs/decisions.md 6-3절) — 실제 보호는
  * 관문이 매 요청마다 토큰·공개여부를 검증하는 데서 나온다.
  */
-const GATEWAY_URL = 'https://script.google.com/macros/s/AKfycbw1lMcmd21VQGWjtStaTKxH05Qsg5lkOZUDZV_NyyhA-OBM_cbdULZQTdUqq8HrLsMH/exec';
+const GATEWAY_URL = 'https://script.google.com/macros/s/AKfycbzmO0WNGDzv1UMDbLtZhq5pC4moF4VB-Q69wwHoR3qwc5J94tslW91kI7Ey1UCrShDm1g/exec';
 
 const TOKEN_KEY = 'karts_token';
 const TOKEN_EXPIRES_KEY = 'karts_token_expires_at';

@@ -16,10 +16,10 @@ function setupTokenSecret() {
 }
 
 /**
- * 프로그램 시트 3개에 탭·머리글·선택 목록을 만든다 (docs/sheet-schema.md 3절·4절).
+ * 프로그램별 탭(워크숍_일정 등 12개)에 머리글 · 선택 목록을 만든다 (docs/sheet-schema.md 3절·4절).
  * 머리글 오타는 관문이 오류 없이 빈 값을 읽게 만들므로 손으로 입력하지 않게 하려는 것.
- * Script Properties에 시트 ID 3개를 넣은 뒤 편집기에서 ▶로 한 번 실행한다.
- * 이미 있는 탭은 건드리지 않아 여러 번 실행해도 안전하다.
+ * 예전 프로그램 시트를 가져올 때는 importProgramSheets(Import.js)를 쓴다 — 이 함수는 빈 탭이 필요할 때만.
+ * 이미 있는 탭은 건드리지 않아 여러 번 실행해도 안전하다. 「읽어보기」는 공통 탭 하나만 둔다.
  */
 var PROGRAM_TAB_HEADERS_ = {
   '읽어보기': [],
@@ -84,14 +84,16 @@ function setupAdminSheets() {
 }
 
 function setupProgramSheets() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   PROGRAMS_.forEach(function (program) {
-    var spreadsheet = getProgramSpreadsheet_(program);
     Object.keys(PROGRAM_TAB_HEADERS_).forEach(function (tabName) {
-      if (spreadsheet.getSheetByName(tabName)) {
-        Logger.log(program.name + ' › ' + tabName + ': 이미 있어 건드리지 않음');
+      if (tabName === '읽어보기') return;
+      var full = programTabName_(program, tabName);
+      if (spreadsheet.getSheetByName(full)) {
+        Logger.log(full + ': 이미 있어 건드리지 않음');
         return;
       }
-      var sheet = spreadsheet.insertSheet(tabName);
+      var sheet = spreadsheet.insertSheet(full, spreadsheet.getSheets().length);
       var headers = PROGRAM_TAB_HEADERS_[tabName];
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -105,7 +107,7 @@ function setupProgramSheets() {
           .build();
         sheet.getRange(2, headers.indexOf(header) + 1, sheet.getMaxRows() - 1, 1).setDataValidation(rule);
       });
-      Logger.log(program.name + ' › ' + tabName + ': 만듦');
+      Logger.log(full + ': 만듦');
     });
   });
 }

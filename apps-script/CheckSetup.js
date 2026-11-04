@@ -19,8 +19,8 @@ function checkSetup() {
   // 2. 공통 시트 탭
   var common = SpreadsheetApp.getActiveSpreadsheet();
   ['접근코드', '설정', '학생', '로그'].forEach(function (name) {
-    if (common.getSheetByName(name)) pass('공통 시트 「' + name + '」 탭 있음');
-    else fail('공통 시트에 「' + name + '」 탭이 없음 — 예전 공통 시트의 사본인지 확인');
+    if (common.getSheetByName(name)) pass('공통 「' + name + '」 탭 있음');
+    else fail('「' + name + '」 탭이 없음 — 예전 공통 시트의 사본인지 확인');
   });
   if (common.getSheetByName('관리기록')) pass('「관리기록」 탭 있음');
   else fail('「관리기록」 탭 없음 → setupAdminSheets를 한 번 실행');
@@ -32,26 +32,28 @@ function checkSetup() {
     else fail('접근코드가 하나도 없음 — 「접근코드」 탭에 줄을 넣을 것');
   } catch (err) { fail('접근코드를 읽지 못함 — ' + err.message); }
 
-  // 4. 프로그램 시트 3개
+  // 4. 프로그램 탭 12개 (2026-11-04부터 이 시트 안 — 워크숍_일정 등)
   PROGRAMS_.forEach(function (program) {
-    var id = props.getProperty(program.prop);
-    if (!id) { fail(program.prop + ' 없음 → 스크립트 속성에 「' + program.name + '」 시트 ID를 넣을 것'); return; }
-    try {
-      var ss = SpreadsheetApp.openById(id);
-      var missing = Object.keys(PROGRAM_TAB_HEADERS_).filter(function (t) { return t !== '읽어보기' && !ss.getSheetByName(t); });
-      if (missing.length) fail(program.name + ' 시트에 탭이 없음: ' + missing.join(', ') + ' → setupProgramSheets 실행');
-      else pass(program.name + ' 시트 열림 (' + ss.getName() + ')');
-    } catch (err) {
-      fail(program.name + ' 시트를 열 수 없음 — ID가 맞는지, 이 계정이 편집할 수 있는지 확인 (' + err.message + ')');
+    var missing = Object.keys(PROGRAM_TAB_HEADERS_).filter(function (t) {
+      return t !== '읽어보기' && !common.getSheetByName(programTabName_(program, t));
+    }).map(function (t) { return programTabName_(program, t); });
+    if (missing.length) fail('탭이 없음: ' + missing.join(', ') + ' → importProgramSheets(예전 시트 가져오기) 또는 setupProgramSheets(빈 탭) 실행');
+    else {
+      var rows = 0;
+      try { rows = sheetRowsAsObjects_('일정', program).length; } catch (err) { /* 위에서 확인 */ }
+      pass(program.name + ' 탭 4개 있음 (일정 ' + rows + '줄)');
     }
   });
+  var oldProps = PROGRAMS_.map(function (p) { return p.old; }).concat(['SHEET_ID_WORKSHOP', 'SHEET_ID_MENTORING', 'SHEET_ID_CAMP'])
+    .filter(function (k) { return props.getProperty(k); });
+  if (oldProps.length) Logger.log('ℹ️ 더 이상 쓰지 않는 스크립트 속성: ' + oldProps.join(', ') + ' — 가져오기가 끝났으면 지워도 됨');
 
   // 5. 트리거
   var handlers = ScriptApp.getProjectTriggers().map(function (t) { return t.getHandlerFunction(); });
   var edits = handlers.filter(function (h) { return h === 'onSheetEdit'; }).length;
   var flush = handlers.filter(function (h) { return h === 'flushLogs'; }).length;
-  if (edits === 4 && flush === 1) pass('트리거 설치됨 (시트 편집 4 · 로그 1)');
-  else fail('트리거가 부족함 (시트 편집 ' + edits + '/4 · 로그 ' + flush + '/1) → installTriggers 실행');
+  if (edits === 1 && flush === 1) pass('트리거 설치됨 (시트 편집 1 · 로그 1)');
+  else fail('트리거가 맞지 않음 (시트 편집 ' + edits + '/1 · 로그 ' + flush + '/1) → installTriggers 실행');
 
   // 6. Vimeo
   if (!props.getProperty('VIMEO_TOKEN')) {
@@ -72,7 +74,7 @@ function checkSetup() {
       sheetRowsAsObjects_('자료', program).forEach(function (m) {
         if ((m['자료유형'] === '사진' || m['자료유형'] === '작품(이미지)') && m['링크']) photos.push(String(m['링크']).trim());
       });
-    } catch (err) { /* 시트 문제는 4번에서 알림 */ }
+    } catch (err) { /* 탭 문제는 4번에서 알림 */ }
   });
   if (!photos.length) {
     pass('사진 자료 없음 (확인할 것 없음)');

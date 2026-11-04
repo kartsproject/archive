@@ -93,7 +93,7 @@
 | 5.5 | 영상 추가 (Vimeo 직접 업로드·「자료」 등록) | 영상 추가 | 10-29 | | 진행 (작업 폴더에서 구현·가짜 환경 시험 통과, 합침 · 실제 시험 전) |
 | 5.6 | 합치기·관문 배포·점검 | 배포 | 10-30 | | 진행 (브랜치 합침, 관문 @13 배포, 실제 시험 전) |
 | 5.7 | 영상 내려받기 — 코드별 허용(「내려받기」 열 · 관리자 카드), 열람기 「내려받기」 단추 · 화질 고르기, 관문 `download` | Download.js · view-materials.js · admin-codes.js | 11-03 | | 진행 (코드 · 가짜 환경 시험 완료, Vimeo 토큰 교체 완료, 관문 자동 배포(`gateway.yml`) 비밀값 2개 대기 — `docs/admin.md` 11절) |
-| 5.8 | 새 구글 계정으로 다시 셋팅 (2026-11-04 사용자) — 설정 점검 `checkSetup`, 자동 배포가 배포 없는 새 프로젝트에서는 코드만 올리고 안내, 순서 안내서 | CheckSetup.js · gateway.yml · `docs/setup-new-account.md` | 11-04 | | 진행 (코드 완료 · 사용자 셋팅 대기 — 안내서 1 · 3 · 4 · 5단계) |
+| 5.8 | 새 구글 계정으로 다시 셋팅 (2026-11-04 사용자) — **시트 4개를 파일 하나로 합침**(프로그램 탭 `워크숍_일정` 등, `importProgramSheets`), 설정 점검 `checkSetup`, 자동 배포가 배포 없는 새 프로젝트에서는 코드만 올리고 안내, 순서 안내서 | SheetAccess.js · Import.js · Setup.js · Triggers.js · CheckSetup.js · gateway.yml · `docs/setup-new-account.md` | 11-04 | | 진행 (코드 완료 · 사용자 셋팅 대기 — 안내서 1 · 3 · 4 · 5단계) |
 
 ---
 

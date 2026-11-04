@@ -77,6 +77,7 @@ npm install -g @google/clasp@3.4.1
 clasp login
 ```
 - Mac에서 권한 오류가 나면 첫 줄 앞에 `sudo `를 붙입니다(PC 암호 입력).
+- Windows PowerShell에서 「이 시스템에서 스크립트를 실행할 수 없으므로 … npm.ps1」 오류가 나면 `npm` · `clasp` 대신 **`npm.cmd` · `clasp.cmd`**로 입력합니다(예: `npm.cmd install -g @google/clasp@3.4.1`, `clasp.cmd login`). PC 보안 설정은 바꾸지 않아도 됩니다.
 - 브라우저가 열리면 **새 구글 계정**을 고르고 「허용」을 누릅니다. 「Logged in」 같은 문구가 나오면 끝입니다.
 - 이미 예전 계정으로 로그인한 적이 있으면 먼저 `clasp logout`을 실행한 뒤 `clasp login`을 합니다.
 

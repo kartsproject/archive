@@ -247,7 +247,7 @@ Apps Script 편집기 ⚙ **프로젝트 설정 › 스크립트 속성**에 아
 | 2 | `Import.gs` → `importProgramSheets` | 예전 프로그램 시트 3개의 일정 · 자료 · 출석부 · 참여자 탭을 이 시트로 복사해 `워크숍_일정` 등 12개 탭으로 붙임. 실행 기록에 탭마다 「가져옴 (n줄)」, 끝에 「✅ 끝」이 나와야 함. 여러 번 실행해도 이미 있는 탭은 건드리지 않음 |
 | 3 | `Setup.gs` → `setupAdminSheets` | 관리자 페이지용 열 · 탭 확인(이미 있으면 그대로) |
 | 4 | `Triggers.gs` → `installTriggers` | 시트 편집 감지 + 1분마다 로그 기록 장치 설치 |
-| 5 | `Vimeo.gs` → `checkVimeoConnection` | Vimeo 연결 확인(실행 기록에 「연결 성공」) |
+| (5) | `Vimeo.gs` → `checkVimeoConnection` | Vimeo 연결 확인 — **건너뛰어도 됨**. 3-7의 `checkSetup`이 Vimeo 연결과 내려받기 권한(Video Files)까지 함께 확인함 |
 
 시트로 돌아가서 탭 12개가 색깔별로 붙어 있고, 예를 들어 `워크숍_일정`에 일정이 들어 있는지 눈으로 확인합니다. 확인이 끝나면 3-5의 `OLD_…` 속성 세 개를 지웁니다.
 

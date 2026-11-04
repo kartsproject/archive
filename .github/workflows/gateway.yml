@@ -73,7 +73,13 @@ jobs:
           DESC: ${{ github.event.head_commit.message }}
         run: |
           desc="auto ${GITHUB_SHA::7} $(printf '%s' "${DESC:-manual}" | head -1 | cut -c1-60)"
-          clasp update-deployment "${{ steps.dep.outputs.id }}" --description "$desc"
+          # 새 계정으로 옮긴 직후처럼 이 프로젝트에 그 배포가 아직 없으면, 코드만 올리고 안내를 남긴다(실패로 표시하지 않음).
+          # 편집기에서 웹앱 배포를 처음 한 번 만들고 그 주소를 site/js/api.js에 넣으면 다음부터 자동으로 새 버전이 된다 (docs/setup-new-account.md)
+          if clasp list-deployments | grep -q "${{ steps.dep.outputs.id }}"; then
+            clasp update-deployment "${{ steps.dep.outputs.id }}" --description "$desc"
+          else
+            echo "::warning::이 Apps Script 프로젝트에 site/js/api.js의 관문 배포가 없음 — 코드는 올렸고 배포는 건너뜀. 편집기에서 웹앱 배포를 만들고 주소를 site/js/api.js에 넣을 것"
+          fi
 
       - name: 비밀값 지우기
         if: always()

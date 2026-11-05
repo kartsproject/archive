@@ -20,6 +20,7 @@ const AppState = {
 const gateScreen = document.getElementById('gate-screen');
 const appScreen = document.getElementById('app-screen');
 const codeInput = document.getElementById('code-input');
+const codeField = enhanceCodeInput(codeInput); // 한글 자판이어도 영문 · [보기] (hangul.js, 2026-11-05)
 const nameInput = document.getElementById('name-input');
 const gateError = document.getElementById('gate-error');
 const gateSubmitBtn = document.getElementById('gate-submit');
@@ -151,6 +152,7 @@ function logout() {
   appScreen.classList.add('hidden');
   gateScreen.classList.remove('hidden');
   codeInput.value = '';
+  codeField.hide();
   nameInput.value = '';
   gateError.textContent = '';
   location.hash = '';

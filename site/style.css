@@ -85,6 +85,17 @@ img { display: block; }
 .code-input:focus { border-color: var(--gold); }
 .code-input::placeholder { color: var(--cream-dim); letter-spacing: .2em; }
 
+/* 접근코드 칸 [보기] (hangul.js enhanceCodeInput, 2026-11-05) */
+.cf-wrap { position: relative; display: block; width: 100%; }
+.cf-wrap .code-input { padding-left: 76px; padding-right: 76px; }
+.cf-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px;
+  background: rgba(255, 255, 255, .08); color: var(--cream); font: inherit; font-size: 13px; cursor: pointer;
+}
+.cf-eye:hover { border-color: var(--gold); }
+.cf-eye[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-soft); }
+
 .name-input {
   width: 100%; margin-top: 12px; background: rgba(255, 255, 255, .06); border: 1px solid var(--line);
   border-radius: 2px; padding: 14px 18px; color: var(--cream);

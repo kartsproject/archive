@@ -38,10 +38,20 @@ function convertHangulToEnglish(str) {
  * 접근코드 입력칸 (2026-11-05 사용자 요청) — 열람 화면(app.js) · 관리자 화면(admin-app.js) 로그인이 함께 쓴다.
  *  ① 영문 · 숫자 · - 만 들어간다. 한글 자판인 채로 치면 그 자리에서 영문으로 바꾸고(조합 중에는 두었다가 조합이 끝나면),
  *     그 밖의 글자(빈칸 · 기호)는 뺀다. 대문자 · 소문자는 친 그대로 둔다 — 코드는 대소문자를 구별한다(2026-11-05 사용자)
- *  ② 칸 오른쪽 [보기] 단추로 입력한 코드를 보고 다시 숨긴다
+ *  ② 칸 오른쪽 눈 아이콘 단추로 입력한 코드를 보고 다시 숨긴다(보이는 중이면 빗금 친 눈)
  * 코드가 맞는지는 관문이 확인한다. 이 함수는 입력을 고쳐 보여 줄 뿐이다.
  * 홍보 사이트 assets/js/codefield.js와 같은 방식. 돌려주는 hide()는 로그인 화면을 다시 열 때 [보기]를 끈다.
  */
+// [보기] 단추의 눈 아이콘(DOM으로 그림). 보이는 중이면 눈에 빗금
+function eyeIcon(off) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v)); return e; };
+  const svg = el('svg', { viewBox: '0 0 24 24', width: '18', height: '18', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' });
+  svg.appendChild(el('path', { d: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z' }));
+  svg.appendChild(el('circle', { cx: '12', cy: '12', r: '3' }));
+  if (off) svg.appendChild(el('path', { d: 'M4 4l16 16' }));
+  return svg;
+}
 function enhanceCodeInput(input) {
   if (!input || input.dataset.cf) return { hide() {} };
   input.dataset.cf = '1';
@@ -57,7 +67,8 @@ function enhanceCodeInput(input) {
   wrap.appendChild(btn);
   const show = on => {
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    btn.textContent = on ? '숨기기' : '보기';
+    btn.replaceChildren(eyeIcon(on));
+    btn.title = on ? '숨기기' : '보기';
     btn.setAttribute('aria-label', on ? '접근코드 숨기기' : '입력한 접근코드 보기');
     input.type = on ? 'text' : 'password'; // 보이는 동안 한글 입력기가 켜질 수 있다 — 아래 fix가 영문으로 바꾼다
   };

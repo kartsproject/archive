@@ -95,7 +95,8 @@
 | 5.7 | 영상 내려받기 — 코드별 허용(「내려받기」 열 · 관리자 카드), 열람기 「내려받기」 단추 · 화질 고르기, 관문 `download` | Download.js · view-materials.js · admin-codes.js | 11-03 | | 진행 (코드 · 가짜 환경 시험 완료, Vimeo 토큰 교체 완료, 관문 자동 배포(`gateway.yml`) 비밀값 2개 대기 — `docs/admin.md` 11절) |
 | 5.8 | 새 구글 계정으로 다시 셋팅 (2026-11-04 사용자) — **시트 4개를 파일 하나로 합침**(프로그램 탭 `워크숍_일정` 등, `importProgramSheets`), 설정 점검 `checkSetup`, 자동 배포가 배포 없는 새 프로젝트에서는 코드만 올리고 안내, 순서 안내서 | SheetAccess.js · Import.js · Setup.js · Triggers.js · CheckSetup.js · gateway.yml · `docs/setup-new-account.md` | 11-04 | | 진행 (2026-11-04 새 계정 시트 합침 · 트리거 · 웹앱 배포 완료, 새 관문 주소 `site/js/api.js` 반영 — 5단계 확인 남음) |
 | 5.9 | 관리자 코드 12자 이상 규칙 없앰 (2026-11-05 사용자) — 관문 `AdminCodes.js` · 화면 `site/js/admin-codes.js`. 코드 값은 운영진이 시트 「접근코드」 탭에서 바꿈 | 관리자 페이지 | 11-05 | | 완료 (관문 자동 배포) |
-| 5.10 | 접근코드 칸 — 한글 자판인 채로 쳐도 그 자리에서 영문 대문자로, 칸 오른쪽 [보기] · [숨기기] (열람 · 관리자 로그인, 2026-11-05 사용자) | site/js/hangul.js · app.js · admin-app.js · style.css | 11-05 | | 완료 |
+| 5.10 | 접근코드 칸 — 한글 자판인 채로 쳐도 그 자리에서 영문으로, 칸 오른쪽 [보기] · [숨기기] (열람 · 관리자 로그인, 2026-11-05 사용자) | site/js/hangul.js · app.js · admin-app.js · style.css | 11-05 | | 완료 |
+| 5.11 | 접근코드 대소문자 구별 · 영문만 (2026-11-05 사용자) — 로그인 칸은 영문 · 숫자 · -만 받고 대문자로 바꾸지 않음. 관리자 페이지 코드 형식 `[A-Za-z0-9-]{4,20}`, 대소문자만 다른 코드는 같은 코드로 보고 막음 | hangul.js · app.js · admin-app.js · admin-codes.js · AdminCodes.js | 11-05 | | 완료 (관문 자동 배포) |
 
 ---
 

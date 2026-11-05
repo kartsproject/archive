@@ -48,7 +48,7 @@ async function trySubmitGate() {
   if (rawCode.length === 0) { gateError.textContent = '접근코드를 입력해 주세요.'; return; }
   if (name.length === 0) { gateError.textContent = '이름을 입력해 주세요.'; return; }
 
-  const code = convertHangulToEnglish(rawCode).toUpperCase();
+  const code = convertHangulToEnglish(rawCode).replace(/[^A-Za-z0-9-]/g, ''); // 영문·숫자·-만, 대소문자 구별 (2026-11-05)
 
   setGateSubmitting(true);
   try {

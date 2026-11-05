@@ -3,8 +3,8 @@
  * 공통 규칙(잠금·저장 직전 확인·관리기록·캐시)은 Admin.js의 함수를 그대로 쓴다.
  */
 
-var CODE_PATTERN_ = /^[A-Z0-9-]{4,20}$/;        // 로그인 입력칸 최대 20자, 대문자·숫자·-만
-// 관리자 코드 12자 이상 규칙은 2026-11-05 사용자 결정으로 뺐다 — 코드 형식(대문자·숫자·- 4~20자)만 본다 (docs/admin.md 4절)
+var CODE_PATTERN_ = /^[A-Za-z0-9-]{4,20}$/;     // 로그인 입력칸 최대 20자, 영문·숫자·-만. 대소문자를 구별한다(2026-11-05 사용자)
+// 관리자 코드 12자 이상 규칙은 2026-11-05 사용자 결정으로 뺐다 — 코드 형식(영문·숫자·- 4~20자)만 본다 (docs/admin.md 4절)
 var CODE_STATUS_VALUES_ = ['사용', '정지'];
 var CODE_ROLE_VALUES_ = ['열람', ADMIN_ROLE_];
 var CODE_DOWNLOAD_VALUES_ = ['불가', '허용']; // 2026-11-03 영상 내려받기(Download.js). 비어 있으면 불가
@@ -103,14 +103,13 @@ function adminCodeRevoke_(req, admin) {
 
 /* ---------- 검사 ---------- */
 
-// 받은 값을 글자로 다듬는다. 시트에 없는 열이면 INVALID_INPUT. 코드는 대문자로.
+// 받은 값을 글자로 다듬는다. 시트에 없는 열이면 INVALID_INPUT. 코드는 적은 그대로(대소문자 구별, 2026-11-05).
 function normalizeCodeFields_(fields, headers) {
   var out = {};
   Object.keys(fields).forEach(function (key) {
     if (key === '_row') return;
     if (headers.indexOf(key) === -1) throw adminError_('INVALID_INPUT');
     var value = String(fields[key] == null ? '' : fields[key]).trim();
-    if (key === '코드') value = value.toUpperCase();
     if (CODE_TEXT_LIMITS_[key] && value.length > CODE_TEXT_LIMITS_[key]) throw adminError_('INVALID_INPUT');
     out[key] = value;
   });
@@ -130,7 +129,8 @@ function assertCodeRules_(row, current) {
 
 function assertCodeUnique_(rows, code, exceptRow) {
   rows.forEach(function (r) {
-    if (r._row !== exceptRow && String(r['코드']).trim().toUpperCase() === code) throw adminError_('INVALID_INPUT');
+    // 대소문자만 다른 코드(abc · ABC)는 헷갈리므로 같은 코드로 보고 막는다
+    if (r._row !== exceptRow && String(r['코드']).trim().toUpperCase() === String(code).toUpperCase()) throw adminError_('INVALID_INPUT');
   });
 }
 

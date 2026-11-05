@@ -33,3 +33,47 @@ function convertHangulToEnglish(str) {
   }
   return out;
 }
+
+/**
+ * 접근코드 입력칸 (2026-11-05 사용자 요청) — 열람 화면(app.js) · 관리자 화면(admin-app.js) 로그인이 함께 쓴다.
+ *  ① 한글 자판인 채로 쳐도 그 자리에서 영문 대문자로 바꾼다(조합 중에는 두었다가 조합이 끝나면)
+ *  ② 칸 오른쪽 [보기] 단추로 입력한 코드를 보고 다시 숨긴다
+ * 코드가 맞는지는 관문이 확인한다. 이 함수는 입력을 고쳐 보여 줄 뿐이다.
+ * 홍보 사이트 assets/js/codefield.js와 같은 방식. 돌려주는 hide()는 로그인 화면을 다시 열 때 [보기]를 끈다.
+ */
+function enhanceCodeInput(input) {
+  if (!input || input.dataset.cf) return { hide() {} };
+  input.dataset.cf = '1';
+  input.setAttribute('lang', 'en');
+  input.spellcheck = false;
+  const wrap = document.createElement('span');
+  wrap.className = 'cf-wrap';
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'cf-eye';
+  wrap.appendChild(btn);
+  const show = on => {
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.textContent = on ? '숨기기' : '보기';
+    btn.setAttribute('aria-label', on ? '접근코드 숨기기' : '입력한 접근코드 보기');
+    input.type = on ? 'text' : 'password'; // 보이는 동안 한글 입력기가 켜질 수 있다 — 아래 fix가 영문으로 바꾼다
+  };
+  show(false);
+  btn.addEventListener('mousedown', e => e.preventDefault());
+  btn.addEventListener('click', () => { show(btn.getAttribute('aria-pressed') !== 'true'); input.focus(); });
+  const fix = () => {
+    const v = input.value;
+    const n = convertHangulToEnglish(v).toUpperCase();
+    if (n === v) return;
+    const p = input.selectionStart;
+    const np = p == null ? n.length : convertHangulToEnglish(v.slice(0, p)).length;
+    input.value = n;
+    try { input.setSelectionRange(np, np); } catch (e) { /* 일부 브라우저의 비밀번호 칸 */ }
+  };
+  input.addEventListener('input', e => { if (!e.isComposing) fix(); });
+  input.addEventListener('compositionend', () => setTimeout(fix, 0));
+  input.addEventListener('blur', fix);
+  return { hide() { show(false); } };
+}

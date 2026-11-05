@@ -87,10 +87,10 @@ img { display: block; }
 
 /* 접근코드 칸 [보기] (hangul.js enhanceCodeInput, 2026-11-05) */
 .cf-wrap { position: relative; display: block; width: 100%; }
-.cf-wrap .code-input { padding-left: 76px; padding-right: 76px; }
+.cf-wrap .code-input { padding-left: 56px; padding-right: 56px; }
 .cf-eye {
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px;
+  display: grid; place-items: center; width: 38px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 2px;
   background: rgba(255, 255, 255, .08); color: var(--cream); font: inherit; font-size: 13px; cursor: pointer;
 }
 .cf-eye:hover { border-color: var(--gold); }

@@ -12,7 +12,6 @@
   const TARGET_SLUG = { '운영진': 'STAFF', '음악': 'MUSIC', '무용': 'DANCE', '전통예술': 'TRAD', '미술': 'ART' };
   const SAFE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 헷갈리는 0 O 1 I L 제외 (docs/admin.md 5절)
   const CODE_PATTERN = /^[A-Z0-9-]{4,20}$/;
-  const ADMIN_CODE_MIN_LENGTH = 12;
   // 화면에 보여 주고 고칠 수 있는 열. 버전은 [접속 끊기]·코드 변경으로만 바뀐다.
   // 「내려받기」 열은 관문 setupAdminSheets()가 만든다 — 열이 없으면 양식·카드에 나오지 않는다.
   const EDIT_FIELDS = ['코드', '이름', '배포 대상', '첫 화면', '사용기한', '상태', '권한', '내려받기', '비고'];
@@ -231,7 +230,7 @@
       isNew ? el('button', { className: 'admin-btn', type: 'button', text: '다시 만들기', on: { click: () => { codeTouched = false; regenerate(); } } }) : null);
 
     const hints = {
-      '코드': isSelf ? '지금 로그인한 코드라 바꿀 수 없습니다.' : '대문자·숫자·-만, 4~20자. 관리자 코드는 12자 이상.' + (isNew ? '' : ' 바꾸면 기존 접속이 끊깁니다.'),
+      '코드': isSelf ? '지금 로그인한 코드라 바꿀 수 없습니다.' : '대문자·숫자·-만, 4~20자.' + (isNew ? '' : ' 바꾸면 기존 접속이 끊깁니다.'),
       '이름': '누구에게 준 코드인지 적습니다. 접속 기록에 함께 보입니다.',
       '첫 화면': '로그인하면 처음 보이는 화면입니다.',
       '내려받기': '허용하면 열람 사이트 영상에 「내려받기」 단추가 보입니다. 받은 링크는 24시간 동안 누구에게나 전달될 수 있어 꼭 필요한 코드만 허용합니다.'
@@ -252,7 +251,6 @@
       const values = collect();
       if (!values['이름']) return '이름(주체)을 입력해 주세요.';
       if (!CODE_PATTERN.test(values['코드'])) return '코드는 대문자·숫자·-만 써서 4~20자로 만들어 주세요.';
-      if (values['권한'] === '관리자' && values['코드'].length < ADMIN_CODE_MIN_LENGTH) return `관리자 코드는 ${ADMIN_CODE_MIN_LENGTH}자 이상이어야 합니다.`;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(values['사용기한'])) return '사용기한을 골라 주세요.';
       const duplicate = state.rows.some(r => r !== row && String(r['코드']).toUpperCase() === values['코드']);
       if (duplicate) return '이미 있는 코드입니다.';

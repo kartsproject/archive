@@ -4,7 +4,7 @@
  */
 
 var CODE_PATTERN_ = /^[A-Z0-9-]{4,20}$/;        // 로그인 입력칸 최대 20자, 대문자·숫자·-만
-var ADMIN_CODE_MIN_LENGTH_ = 12;                // docs/admin.md 3절: 관리자 코드는 열람 코드보다 길게
+// 관리자 코드 12자 이상 규칙은 2026-11-05 사용자 결정으로 뺐다 — 코드 형식(대문자·숫자·- 4~20자)만 본다 (docs/admin.md 4절)
 var CODE_STATUS_VALUES_ = ['사용', '정지'];
 var CODE_ROLE_VALUES_ = ['열람', ADMIN_ROLE_];
 var CODE_DOWNLOAD_VALUES_ = ['불가', '허용']; // 2026-11-03 영상 내려받기(Download.js). 비어 있으면 불가
@@ -122,7 +122,6 @@ function assertCodeRules_(row, current) {
   var unchanged = function (key) { return current && current[key] === row[key]; };
 
   if (!CODE_PATTERN_.test(row['코드']) && !unchanged('코드')) throw adminError_('INVALID_INPUT');
-  if (row['권한'] === ADMIN_ROLE_ && row['코드'].length < ADMIN_CODE_MIN_LENGTH_) throw adminError_('INVALID_INPUT');
   if (row['상태'] && CODE_STATUS_VALUES_.indexOf(row['상태']) === -1 && !unchanged('상태')) throw adminError_('INVALID_INPUT');
   if (row['권한'] && CODE_ROLE_VALUES_.indexOf(row['권한']) === -1 && !unchanged('권한')) throw adminError_('INVALID_INPUT');
   if (!isValidDateText_(row['사용기한']) && !unchanged('사용기한')) throw adminError_('INVALID_INPUT');

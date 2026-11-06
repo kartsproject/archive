@@ -43,7 +43,7 @@
 
 ### 3-2. `apps-script/Vimeo.js` (2026-10-30)
 - **새 오류 코드 `VIMEO_ERROR`** — 토큰이 없거나 Vimeo가 거절·설정 확인 실패. 화면(`admin-media.js`)이 "Vimeo 연결에 문제가 있습니다"로 안내한다. `admin-app.js` 공통 문구 표에는 없어 다른 탭에서는 `SERVER_ERROR` 문구로 보인다(공통 표에 넣을지는 합칠 때 결정). 자세한 원인은 Apps Script 실행 기록에만 남긴다.
-- 「영상 허용 도메인」은 **쉼표로 여러 개** 적을 수 있게 했다(주소 이전 중 옛 도메인을 함께 둘 때). 비면 `kartsproject.github.io`.
+- 「영상 허용 도메인」은 **쉼표로 여러 개** 적을 수 있게 했다(주소 이전 중 옛 도메인을 함께 둘 때). 비면 `kartsproject.github.io`(2026-11-06부터 `archive.kartsproject.com,kartsproject.github.io`, `docs/admin.md` 7-4).
 - 설정 확인(공개 설정·폴더·허용 도메인)이 기대와 다르면 「자료」에 등록하지 않는다.
 - 「자료」 링크 값이 Vimeo 주소에 들어가므로 숫자 ID만 받는다(아니면 `INVALID_INPUT`).
 - 업로드할 때 공개여부 기본값은 **`공개`**(사용자 확인 2026-10-30). 파일마다 바꿀 수 있다.
@@ -105,7 +105,7 @@
 - 사용자가 Apps Script 편집기에서 직접 한다:
   - 스크립트 속성에 `VIMEO_TOKEN`(파일에 쓰지 않음)
   - 함수를 한 번 실행해 **외부 요청(`UrlFetchApp`) 권한 승인** — 관문이 처음으로 외부 요청을 쓴다
-  - (선택) 「설정」 탭 `영상 허용 도메인`. 비우면 `kartsproject.github.io`, 쉼표로 여러 개 가능
+  - (선택) 「설정」 탭 `영상 허용 도메인`. 비우면 `archive.kartsproject.com,kartsproject.github.io`(2026-11-06), 쉼표로 여러 개 가능
 
 ### 4-4. 실제 시험
 관리자 페이지에서 짧은 편집 영상 1개를 워크숍 칸에 올리고 확인한다.

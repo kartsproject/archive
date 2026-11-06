@@ -7,7 +7,9 @@
  */
 
 var VIMEO_API_ = 'https://api.vimeo.com';
-var VIMEO_DEFAULT_DOMAIN_ = 'kartsproject.github.io'; // 「설정」 「영상 허용 도메인」이 비었을 때 (2026-10-30 저장소 이전)
+// 「설정」 「영상 허용 도메인」이 비었을 때. 2026-11-06 사이트 주소를 archive.kartsproject.com으로 옮기며 옛 주소와 함께 둠
+// (옛 kartsproject.github.io/archive/는 새 주소로 넘겨 주지만, 넘어가기 전 열린 화면을 위해 지우지 않음)
+var VIMEO_DEFAULT_DOMAIN_ = 'archive.kartsproject.com,kartsproject.github.io';
 var VIMEO_DISCARD_PREFIX_ = '[삭제 필요] ';
 var VIMEO_ROOT_FOLDER_ = 'K예술영재 아카이브';
 // Vimeo 분야 폴더 이름은 시트 분야명과 다르다(전통예술 → 전통, 2026-10-30 폴더 목록 확인)
@@ -154,7 +156,7 @@ function vimeoAllowedDomains_() {
   }).filter(function (d) {
     return /^[a-z0-9.-]+$/.test(d);
   });
-  return domains.length ? domains : [VIMEO_DEFAULT_DOMAIN_];
+  return domains.length ? domains : VIMEO_DEFAULT_DOMAIN_.split(',');
 }
 
 // 업로드가 끝난 영상에 허용 도메인을 등록하고, 공개 설정·폴더·도메인을 다시 읽어 확인한다.

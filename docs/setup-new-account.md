@@ -4,7 +4,7 @@
 처음 맡은 사람도 그대로 따라 할 수 있게 썼습니다. 같은 문서가 두 저장소(`kartsproject/home` · `kartsproject/archive`)의 `docs/`에 있습니다.
 
 > **바뀌지 않는 것**
-> - GitHub 저장소와 사이트 주소: `https://kartsproject.github.io/home/` · `https://kartsproject.github.io/archive/`
+> - GitHub 저장소와 사이트 주소: 홍보 `https://kartsproject.com/` · 아카이빙 `https://archive.kartsproject.com/` (2026-11-06부터. 옛 `kartsproject.github.io/home/` · `/archive/`는 새 주소로 넘어감)
 > - 화면 디자인. 홍보 사이트는 실사진 미리보기(preview4)와 같은 사진이 기본 사진입니다.
 > - Vimeo 계정과 영상
 >
@@ -276,7 +276,7 @@ Apps Script 편집기 ⚙ **프로젝트 설정 › 스크립트 속성**에 아
 - [ ] 홍보 관리자 페이지 `https://kartsproject.github.io/home/admin.html`에 로그인 → 공지 · 갤러리 목록이 보이고, 「사이트 사진」 탭에 카드 30개가 보이는지
 - [ ] 아무 공지나 열어 [저장] → 「저장했습니다」 → 1~2분 뒤 사이트에 반영되는지
 - [ ] 홍보 사이트 메인 표지 · 사진이 실사진(preview4와 같은 사진)으로 보이는지
-- [ ] 아카이빙 `https://kartsproject.github.io/archive/`에 접근코드로 로그인 → 워크숍 일정표 · 영상 · 사진이 열리는지, 아카이빙 관리자 페이지 「영상 관리」에서 일정표가 보이는지
+- [ ] 아카이빙 `https://archive.kartsproject.com/`에 접근코드로 로그인 → 워크숍 일정표 · 영상 · 사진이 열리는지, 아카이빙 관리자 페이지 「영상 관리」에서 일정표가 보이는지
 - [ ] 두 편집기에서 `checkSetup`을 한 번 더 실행해 ❌가 없는지
 
 ### 예전 계정 정리 (확인이 끝난 뒤)

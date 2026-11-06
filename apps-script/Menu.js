@@ -11,6 +11,7 @@ function onOpen() {
     .addSeparator()
     .addItem('점검', 'runInspection')
     .addItem('캐시 비우기', 'clearCacheNow')
+    .addItem('영상 허용 도메인 모두 등록', 'addVideoDomainsAll')
     .addToUi();
 }
 

@@ -46,7 +46,8 @@ function getPublicMaterials_() {
       studentName: row['학생명'],
       studentId: row['학생ID'],
       discipline: row['분야'],
-      subtitle: row['소제목'] // 한 칸 안 영상의 반·악기 이름(「해금2」). 열이 없는 시트는 빈 값 (2026-10-08)
+      subtitle: row['소제목'], // 한 칸 안 영상의 반·악기 이름(「해금2」). 열이 없는 시트는 빈 값 (2026-10-08)
+      start: parseStartSeconds_(row['시작 위치']) // 이 칸에서 재생을 시작할 위치(초). 비우면 0 = 처음부터 (2026-11-12)
     };
   });
 }

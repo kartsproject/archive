@@ -19,7 +19,8 @@ function programMenu_(ui, suffix, label) {
   return ui.createMenu(label)
     .addItem('세션ID 생성', 'generateSessionIds' + suffix)
     .addItem('출석부 변환', 'convertAttendance' + suffix)
-    .addItem('영상 매칭', 'matchVideos' + suffix);
+    .addItem('영상 매칭', 'matchVideos' + suffix)
+    .addItem('시작 위치 입력', 'applyStartPositions' + suffix);
 }
 
 // 스크립트가 쓴 값에는 편집 트리거가 반응하지 않으므로, 메뉴 작업 뒤에는 캐시를 직접 비운다.
@@ -39,6 +40,10 @@ function convertAttendanceCamp() { runAndClearCache_(getProgram_('camp'), conver
 function matchVideosWorkshop() { runAndClearCache_(getProgram_('ws'), matchVideosFor_); }
 function matchVideosMentoring() { runAndClearCache_(getProgram_('mt'), matchVideosFor_); }
 function matchVideosCamp() { runAndClearCache_(getProgram_('camp'), matchVideosFor_); }
+
+function applyStartPositionsWorkshop() { runAndClearCache_(getProgram_('ws'), applyStartPositionsFor_); }
+function applyStartPositionsMentoring() { runAndClearCache_(getProgram_('mt'), applyStartPositionsFor_); }
+function applyStartPositionsCamp() { runAndClearCache_(getProgram_('camp'), applyStartPositionsFor_); }
 
 // 편집 트리거가 동작하지 않았거나 화면이 옛 자료를 보여줄 때 쓰는 수동 장치.
 function clearCacheNow() {

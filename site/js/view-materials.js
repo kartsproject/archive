@@ -388,9 +388,16 @@ function loadViewerItem(viewer) {
   const requestId = viewer.requestId;
 
   const { title, fileLine } = viewer.describe(viewer, viewer.type, viewer.index, material);
+  // 여러 칸에 걸친 통녹화는 「자료」 「시작 위치」부터 튼다(2026-11-12). 시각 링크로 들어왔으면 그 시각이 먼저다
+  const sheetStart = viewer.type === 'video' && material.start > 0 ? Math.floor(material.start) : 0;
+  const startSec = viewer.startTime > 0 ? viewer.startTime : sheetStart;
+  viewer.startTime = 0;
   viewer.eyebrow.textContent = viewer.type === 'video' ? '영상' : '사진';
   viewer.title.textContent = title;
-  if (viewer.fileName) viewer.fileName.textContent = fileLine;
+  if (viewer.fileName) {
+    const startNote = sheetStart > 0 ? `이 수업은 ${formatPlayTime(sheetStart)}부터` : '';
+    viewer.fileName.textContent = [fileLine, startNote].filter(Boolean).join(' · ');
+  }
   if (viewer.onItemShown) viewer.onItemShown(viewer);
 
   if (viewer.type === 'video') {
@@ -398,9 +405,8 @@ function loadViewerItem(viewer) {
     viewer.photoFrame.replaceChildren();
     viewer.videoFrame.classList.remove('hidden');
     viewer.videoFrame.replaceChildren();
-    // 시각 링크로 들어왔으면 그 시각에 맞춰 띄운다(#t=초s, Vimeo 임베드 기본 기능). 재생은 이용자가 누른다
-    const start = viewer.startTime > 0 ? `#t=${viewer.startTime}s` : '';
-    viewer.startTime = 0;
+    // 시작 시각이 있으면 그 시각에 맞춰 띄운다(#t=초s, Vimeo 임베드 기본 기능). 재생은 이용자가 누른다
+    const start = startSec > 0 ? `#t=${startSec}s` : '';
     const iframe = document.createElement('iframe');
     iframe.src = `${VIMEO_ORIGIN}/video/${encodeURIComponent(material.link)}?title=0&byline=0&portrait=0${start}`;
     iframe.allow = 'autoplay; fullscreen; picture-in-picture';
